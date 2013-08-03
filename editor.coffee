@@ -80,7 +80,8 @@ class ctl # ansi escape sequences / control characters/codes
     # background
     @bg_reset    : '[49m'
     @bg_black    : '[40m'
-    @bg_red      : '[41m'
+    #@bg_red      : '[41m'
+    @bg_red      : '[48;5;1m'
     @bg_green    : '[42m'
     @bg_yellow   : '[43m'
     @bg_blue     : '[44m'
@@ -108,10 +109,12 @@ for layer in ['', 'bg_']
       else
         terminal.bg(color).fg('white').echo(color_name).bg('reset')
 
+#for 
+
 terminal.echo "\n"
 
 global.delay = (s,f) -> setTimeout f, s
 global.interval = (s,f) -> setInterval f, s
 terminal.echo "now let's try to clear the screen with gray background\n"
-delay 1000, ->
-  terminal.fg('bold').bg('black').clear().fg('unbold').fg('white').go(0,0).echo("how is this?\n")
+#delay 15000, ->
+#  terminal.fg('bold').bg('black').clear().fg('unbold').fg('white').go(0,0).echo("how is this?\n")
