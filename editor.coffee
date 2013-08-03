@@ -77,17 +77,18 @@ class ctl # ansi escape sequences / control characters/codes
     @magenta     : '[35m'
     @cyan        : '[36m'
     @white       : '[37m'
+    @xterm       : (i) -> "[38;5;#{i}m"
     # background
     @bg_reset    : '[49m'
     @bg_black    : '[40m'
-    #@bg_red      : '[41m'
-    @bg_red      : '[48;5;1m'
+    @bg_red      : '[41m'
     @bg_green    : '[42m'
     @bg_yellow   : '[43m'
     @bg_blue     : '[44m'
     @bg_magenta  : '[45m'
     @bg_cyan     : '[46m'
     @bg_white    : '[47m'
+    @bg_xterm     : (i) -> "[48;5;#{i}m"
 
 class terminal
   @echo: (s) -> process.stdout.write s; @
@@ -95,6 +96,8 @@ class terminal
   @go: (x,y) -> ctl ctl.POS x, y; @
   @fg: (color) -> ctl ctl.color[color]; @
   @bg: (color) -> ctl ctl.color['bg_'+color]; @
+  @xfg: (i) -> ctl ctl.color.xterm i; @
+  @xbg: (i) -> ctl ctl.color.bg_xterm i; @
 
 terminal.clear().go(0,0).echo "hello curses world!\n"
 
@@ -109,12 +112,15 @@ for layer in ['', 'bg_']
       else
         terminal.bg(color).fg('white').echo(color_name).bg('reset')
 
-#for 
+terminal.echo "\n"
+
+for i in [0..255]
+  terminal.xbg(i).xfg(i+2).echo(""+i).fg('reset').bg('reset')
 
 terminal.echo "\n"
 
 global.delay = (s,f) -> setTimeout f, s
 global.interval = (s,f) -> setInterval f, s
-terminal.echo "now let's try to clear the screen with gray background\n"
+#terminal.echo "now let's try to clear the screen with gray background\n"
 #delay 15000, ->
 #  terminal.fg('bold').bg('black').clear().fg('unbold').fg('white').go(0,0).echo("how is this?\n")
