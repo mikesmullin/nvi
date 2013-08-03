@@ -16,14 +16,38 @@ die = (err) ->
   process.exit 1 # exit with non-zero error code
 die 'must be in a tty' unless process.stdout.isTTY
 
+# initialize
 terminal.screen.w = process.stdout.columns
 terminal.screen.h = process.stdout.rows
+
+# misc utils
+global.repeat = (n,s) -> o = ''; o += s for i in [0..n]; o
+
+# config
+text_fg = 255
+text_bg = 235
+gutter_bg = 234
+gutter_fg = 240
+
+redraw = ->
+  terminal.xbg(gutter_bg).clear_screen()
+  terminal.xbg(gutter_bg).xfg(gutter_fg).go(1,1).echo('  1 ')
+  terminal.xbg(text_bg).xfg(text_fg).echo("how is this?").clear_eol()
+  terminal.xbg(gutter_bg).xfg(gutter_fg).echo('  2 ')
+  terminal.xbg(text_bg).xfg(text_fg).echo("hehe").clear_eol()
+  for y in [terminal.cursor.y..terminal.screen.h]
+    terminal.xbg(gutter_bg).xfg(gutter_fg).go(1,y).fg('bold').echo('~').fg('unbold')
+  terminal.go(8,2).xfg(255)
+
+redraw()
+
 process.stdout.on 'resize', ->
   # TODO: throttle these events because they can happen rapidly?
   #       only listen to last one in like 500ms
   logger.out "caught resize #{process.stdout.columns}, #{process.stdout.rows}"
   terminal.screen.w = process.stdout.columns
   terminal.screen.h = process.stdout.rows
+  redraw()
 
 process.stdin.on 'keypress', (ch, key) ->
   logger.out "got keypress", JSON.stringify arguments
@@ -65,25 +89,5 @@ process.stdin.on 'mousepress', (info) ->
 process.on 'exit', ->
   # must return state back to normal for terminal
   keypress.disableMouse process.stdout
-
-# misc utils
-global.repeat = (n,s) -> o = ''; o += s for i in [0..n]; o
-
-# config
-text_fg = 255
-text_bg = 235
-gutter_bg = 234
-gutter_fg = 240
-
-# begin
-terminal.xbg(gutter_bg).clear_screen()
-
-terminal.xbg(gutter_bg).xfg(gutter_fg).go(1,1).echo('  1 ')
-terminal.xbg(text_bg).xfg(text_fg).echo("how is this?").clear_eol()
-terminal.xbg(gutter_bg).xfg(gutter_fg).echo('  2 ')
-terminal.xbg(text_bg).xfg(text_fg).echo("hehe").clear_eol()
-for y in [terminal.cursor.y..terminal.screen.h]
-  terminal.xbg(gutter_bg).xfg(gutter_fg).go(1,y).fg('bold').echo('~').fg('unbold')
-terminal.go(8,2).xfg(255)
 
 process.stdin.resume() # wait for stdin
