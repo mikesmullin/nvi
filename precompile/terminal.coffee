@@ -54,10 +54,20 @@ module.exports = class terminal
   @screen:
     w: null
     h: null
+  @buffer:
+    w: null
+    h: 2
   @go: (x,y) ->
     terminal.cursor.x = x
     terminal.cursor.y = y
-    terminal.esc terminal.esc.POS x, y; @
+    terminal.esc terminal.esc.POS x, y
+    logger.out "cursor now #{x}, #{y}"
+    @
+  @move: (x, y=0) ->
+    dx = terminal.cursor.x + x
+    dy = terminal.cursor.y + y
+    if dx > 4 and dx < terminal.screen.w and dy > 0 and dy <= terminal.buffer.h
+      @go dx, dy
   @fg: (color) -> terminal.esc terminal.esc.color[color]; @
   @bg: (color) -> terminal.esc terminal.esc.color['bg_'+color]; @
   @xfg: (i) -> terminal.esc terminal.esc.color.xterm i; @

@@ -8,5 +8,18 @@
 */
 
 module.exports = function(nvi) {
-  return logger.out('will personalize');
+  var _this = this;
+  logger.out('will personalize');
+  return process.stdin.on('keypress', function(ch, key) {
+    switch (key.name) {
+      case 'left':
+        return _this.terminal.move(-1);
+      case 'right':
+        return _this.terminal.move(1);
+      case 'up':
+        return _this.terminal.move(0, -1);
+      case 'down':
+        return _this.terminal.move(0, 1);
+    }
+  });
 };

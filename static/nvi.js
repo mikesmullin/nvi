@@ -94,4 +94,4 @@ nvi = (function() {
 
 nvi.init();
 
-require('./personalize')(nvi);
+require('./personalize').apply(nvi, nvi);

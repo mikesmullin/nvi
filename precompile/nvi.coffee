@@ -38,36 +38,6 @@ class nvi
 
     process.stdin.on 'keypress', (ch, key) ->
       logger.out "caught keypress: "+ JSON.stringify arguments
-      # got keypress { '0': 'a',
-      #   '1':
-      #    { name: 'a',
-      #      ctrl: false,
-      #      meta: false,
-      #      shift: false,
-      #      sequence: 'a' } }
-      # got keypress { '0': 'A',
-      #   '1': { name: 'a', ctrl: false, meta: false, shift: true, sequence: 'A' } }
-      # got keypress { '0': '\u0001',
-      #   '1':
-      #    { name: 'a',
-      #      ctrl: true,
-      #      meta: false,
-      #      shift: false,
-      #      sequence: '\u0001' } }
-      # got keypress { '0': undefined,
-      #   '1':
-      #    { name: 'a',
-      #      ctrl: false,
-      #      meta: true,
-      #      shift: false,
-      #      sequence: '\u001ba' } }
-      # got keypress { '0': 'a',
-      #   '1':
-      #    { name: 'a',
-      #      ctrl: false,
-      #      meta: false,
-      #      shift: false,
-      #      sequence: 'a' } }
       if key and key.ctrl and key.name is 'c'
         die ''
 
@@ -90,4 +60,4 @@ class nvi
     @terminal.go(8,2).xfg(255)
 
 nvi.init()
-require('./personalize')(nvi)
+require('./personalize').apply nvi, nvi

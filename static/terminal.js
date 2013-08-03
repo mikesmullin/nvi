@@ -115,11 +115,29 @@ module.exports = terminal = (function() {
     h: null
   };
 
+  terminal.buffer = {
+    w: null,
+    h: 2
+  };
+
   terminal.go = function(x, y) {
     terminal.cursor.x = x;
     terminal.cursor.y = y;
     terminal.esc(terminal.esc.POS(x, y));
+    logger.out("cursor now " + x + ", " + y);
     return this;
+  };
+
+  terminal.move = function(x, y) {
+    var dx, dy;
+    if (y == null) {
+      y = 0;
+    }
+    dx = terminal.cursor.x + x;
+    dy = terminal.cursor.y + y;
+    if (dx > 4 && dx < terminal.screen.w && dy > 0 && dy <= terminal.buffer.h) {
+      return this.go(dx, dy);
+    }
   };
 
   terminal.fg = function(color) {
