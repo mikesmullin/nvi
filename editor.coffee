@@ -57,20 +57,41 @@ if process.stdout.isTTY
 
 console.log "watch! this is going to become like vim! :)"
 
-ctl = (s) ->
-  terminal.echo "\u001b"+s
-ctl.CLEAR = '[2J'
-ctl.POS = (x,y) -> "[#{y};#{x}H"
+class ctl # ansi escape sequences / control characters/codes
+  constructor: (s) -> terminal.echo "\u001b"+s
+  @CLEAR: '[2J'
+  @POS: (x, y) -> "[#{y};#{x}H"
+  @color: class
+    @reset:          "[0m"
+    @black:          "[30m"
+    @red:            "[31m"
+    @green:          "[32m"
+    @yellow:         "[33m"
+    @blue:           "[34m"
+    @magenta:        "[35m"
+    @cyan:           "[36m"
+    @white:          "[37m"
+    @grey:           "[1m\u001b[30m"
+    @bright_red:     "[1m\u001b[31m"
+    @bright_green:   "[1m\u001b[32m"
+    @bright_yellow:  "[1m\u001b[33m"
+    @bright_blue:    "[1m\u001b[34m"
+    @bright_magenta: "[1m\u001b[35m"
+    @bright_cyan:    "[1m\u001b[36m"
+    @bright_white:   "[1m\u001b[37m"
 
-terminal =
-  echo: (s) ->
-    process.stdout.write s
-    @
-  reset: ->
-    ctl ctl.CLEAR
-    @
-  go: (x,y) ->
-    ctl ctl.POS x, y
-    @
+class terminal
+  @echo: (s) -> process.stdout.write s; @
+  @reset: -> ctl ctl.CLEAR; @
+  @go: (x,y) -> ctl ctl.POS x, y; @
+  @fg: (color) -> ctl ctl.color[color]; @
 
-terminal.reset().go(0,0).echo('hello curses world!')
+terminal.reset().go(0,0).echo "hello curses world!\n"
+
+for prefix in ['', 'bright_']
+  for suffix in 'black red green yellow blue magenta cyan white grey'.split ' '
+    color = prefix+suffix
+    if ctl.color[color]?
+      terminal.fg(color).echo color
+
+terminal.echo "\n"
