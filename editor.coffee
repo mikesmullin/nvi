@@ -3,6 +3,7 @@ process.stdin.setRawMode true # emit events on keystroke
 
 keypress = require 'keypress'
 keypress process.stdin # make process.stdin emit keypress events
+keypress.enableMouse process.stdout
 process.stdin.on 'keypress', (ch, key) ->
   console.log "got keypress", arguments
   # got keypress { '0': 'a',
@@ -37,7 +38,11 @@ process.stdin.on 'keypress', (ch, key) ->
   #      sequence: 'a' } }
   if key and key.ctrl and key.name is 'c'
     process.stdin.pause()
-
+process.stdin.on 'mousepress', (info) ->
+  console.log "got mousepress event at %d x %d", info.x, info.y
+  console.log info
+process.on 'exit', ->
+  keypress.disableMouse process.stdout # must return state back to normal for terminal
 
 process.stdin.setEncoding 'utf8' # may not be necessary
 process.stdin.resume() # begin reading from stdin; also holds node process open
