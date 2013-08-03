@@ -5,9 +5,12 @@ global.interval = (s,f) -> setInterval f, s
 global.repeat = (n,s) -> o = ''; o += s for i in [0..n]; o
 global.die = (err) ->
   process.stdin.resume() # stop waiting for input
-  @terminal.fg('reset').bg('reset').clear().go(1,1)
-  process.stderr.write err+"\n\n" # output the error
-  process.exit 1 # exit with non-zero error code
+  nvi.terminal.fg('reset').clear().go(1,1)
+  if err
+    process.stderr.write err+"\n\n" # output the error
+    process.exit 1 # exit with non-zero error code
+  process.exit 0
+  # TODO: how does vim cleanup the scrollback buffer too?
 die 'must be in a tty' unless process.stdout.isTTY
 
 class nvi
@@ -34,7 +37,7 @@ class nvi
     resize()
 
     process.stdin.on 'keypress', (ch, key) ->
-      logger.out "got keypress", JSON.stringify arguments
+      logger.out "caught keypress: "+ JSON.stringify arguments
       # got keypress { '0': 'a',
       #   '1':
       #    { name: 'a',
@@ -66,7 +69,7 @@ class nvi
       #      shift: false,
       #      sequence: 'a' } }
       if key and key.ctrl and key.name is 'c'
-        die 'done'
+        die ''
 
     process.stdin.on 'mousepress', (info) ->
       logger.out "caught mousepress: "+ JSON.stringify info
