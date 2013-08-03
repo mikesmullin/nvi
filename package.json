@@ -1,0 +1,17 @@
+{
+  "name": "nvi",
+  "version": "0.0.1",
+  "description": "Very opinionated Node.JS VI clone",
+  "main": "index.js",
+  "dependencies": {
+    "keypress": "~0.2.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "",
+  "author": "Mike Smullin <mike@smullindesign.com>",
+  "license": "GPLv3",
+  "gitHead": "34f9faa540a745a2c95026b7e4c3a5a0e93c4b95"
+}
