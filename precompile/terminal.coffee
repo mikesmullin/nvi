@@ -62,3 +62,15 @@ module.exports = class terminal
   @bg: (color) -> terminal.esc terminal.esc.color['bg_'+color]; @
   @xfg: (i) -> terminal.esc terminal.esc.color.xterm i; @
   @xbg: (i) -> terminal.esc terminal.esc.color.bg_xterm i; @
+
+  # since some terminal emulators (like tmux) don't implement
+  # things like "erase to end of line"
+  # we have to output a bunch of spaces, instead
+  @clear_screen = ->
+    terminal.go(1,1).clear()
+    for y in [0..terminal.screen.h]
+      #terminal.go(1,y)
+      terminal.clear_eol()
+    terminal.go 1, 1; @
+  @clear_eol = ->
+    terminal.echo repeat terminal.screen.w - terminal.cursor.x, ' '; @

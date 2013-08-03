@@ -66,6 +66,9 @@ process.on 'exit', ->
   # must return state back to normal for terminal
   keypress.disableMouse process.stdout
 
+# misc utils
+global.repeat = (n,s) -> o = ''; o += s for i in [0..n]; o
+
 # config
 text_fg = 255
 text_bg = 235
@@ -73,43 +76,14 @@ gutter_bg = 234
 gutter_fg = 240
 
 # begin
-repeat = (n,s) ->
-  o = ''
-  o += s for i in [0..n]
-  o
-clear_screen = ->
-  terminal.xbg('reset').xfg('reset').clear()
-  terminal.xbg(gutter_bg).xfg(gutter_fg)
-  for x in [0..terminal.screen.w]
-    for y in [0..terminal.screen.y]
-      process.stdout.write ' '
-  terminal.go(1,1)
-clear_eol = ->
-  w_delta = terminal.screen.w - terminal.cursor.x
-  logger.out "terminal.screen.w is #{terminal.screen.w}"
-  logger.out "terminal.cursor.x is #{terminal.cursor.x}"
-  logger.out "w_delta is #{w_delta}"
-  terminal.echo repeat w_delta, ' '
+terminal.xbg(gutter_bg).clear_screen()
 
-terminal.go(0,0).xbg(gutter_bg).xfg(gutter_fg).clear().echo('   1 ')
-terminal.xbg(text_bg).xfg(text_fg).echo("how is this?                           \n")
-terminal.xbg(gutter_bg).xfg(gutter_fg).echo('   2 ')
-terminal.xbg(text_bg).xfg(text_fg).echo("hehe                                   \n")
-terminal.xbg(gutter_bg).xfg(gutter_fg).echo("                                            \n")
-terminal.xbg(gutter_bg).xfg(gutter_fg).echo("                                            \n")
-terminal.xbg(gutter_bg).xfg(gutter_fg).echo("                                            \n")
-terminal.xbg(gutter_bg).xfg(gutter_fg).echo("                                            \n")
-terminal.xbg(gutter_bg).xfg(gutter_fg).echo("                                            \n")
-
-###
-terminal.xbg(gutter_bg).xfg(gutter_fg)#.clear()
-clear_screen()
-#terminal.go(1,1).echo('  1 ').xfg(text_fg).xbg(text_bg).echo("how is this?")
-##terminal.esc terminal.esc.CLEAR_EOL
-#clear_eol()
-#terminal.xbg(gutter_bg).xfg(gutter_fg).go(1,2).echo('~   ')
-##terminal.esc terminal.esc.CLEAR_EOL
-#terminal.go(16,1).xfg(255)
-###
+terminal.xbg(gutter_bg).xfg(gutter_fg).go(1,1).echo('  1 ')
+terminal.xbg(text_bg).xfg(text_fg).echo("how is this?").clear_eol()
+terminal.xbg(gutter_bg).xfg(gutter_fg).echo('  2 ')
+terminal.xbg(text_bg).xfg(text_fg).echo("hehe").clear_eol()
+for y in [terminal.cursor.y..terminal.screen.h]
+  terminal.xbg(gutter_bg).xfg(gutter_fg).go(1,y).fg('bold').echo('~').fg('unbold')
+terminal.go(8,2).xfg(255)
 
 process.stdin.resume() # wait for stdin

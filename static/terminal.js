@@ -145,6 +145,21 @@ module.exports = terminal = (function() {
     return this;
   };
 
+  terminal.clear_screen = function() {
+    var y, _i, _ref;
+    terminal.go(1, 1).clear();
+    for (y = _i = 0, _ref = terminal.screen.h; 0 <= _ref ? _i <= _ref : _i >= _ref; y = 0 <= _ref ? ++_i : --_i) {
+      terminal.clear_eol();
+    }
+    terminal.go(1, 1);
+    return this;
+  };
+
+  terminal.clear_eol = function() {
+    terminal.echo(repeat(terminal.screen.w - terminal.cursor.x, ' '));
+    return this;
+  };
+
   return terminal;
 
 }).call(this);
