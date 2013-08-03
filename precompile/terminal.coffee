@@ -1,7 +1,20 @@
 module.exports = class terminal
-  @echo: (s) -> process.stdout.write s; @
-  @ctl: class # ansi escape sequences / control characters/codes
-    constructor: (s) -> terminal.echo "\u001b"+s
+  @echo: (s) ->
+    w_delta = s.length
+    if w_delta
+      s.replace(/[\r\n]+/, -> terminal.cursor.y++; '') # only counts newlines
+      logger.out "cx was #{terminal.cursor.x}, cy was #{terminal.cursor.y}"
+      logger.out "s.length #{w_delta} s=\"#{s}\""
+      terminal.cursor.x += w_delta
+      if terminal.cursor.x > terminal.screen.w
+        terminal.cursor.y += Math.floor(terminal.cursor.x / terminal.screen.w)
+        terminal.cursor.x = terminal.cursor.x % terminal.screen.w
+      logger.out "cx now #{terminal.cursor.x}, cy now #{terminal.cursor.y}"
+    process.stdout.write s
+    @
+
+  @esc: class # ansi escape sequences
+    constructor: (s) -> process.stdout.write "\x1b"+s
     @CLEAR_SCREEN: '[2J'
     @CLEAR_EOL: '[K'
     @CLEAR_EOF: '[J'
@@ -34,9 +47,18 @@ module.exports = class terminal
       @bg_cyan     : '[46m'
       @bg_white    : '[47m'
       @bg_xterm     : (i) -> "[48;5;#{i}m"
-  @clear: -> terminal.ctl terminal.ctl.CLEAR_SCREEN; @
-  @go: (x,y) -> terminal.ctl terminal.ctl.POS x, y; @
-  @fg: (color) -> terminal.ctl terminal.ctl.color[color]; @
-  @bg: (color) -> terminal.ctl terminal.ctl.color['bg_'+color]; @
-  @xfg: (i) -> terminal.ctl terminal.ctl.color.xterm i; @
-  @xbg: (i) -> terminal.ctl terminal.ctl.color.bg_xterm i; @
+  @clear: -> terminal.esc terminal.esc.CLEAR_SCREEN; @
+  @cursor:
+    x: null
+    y: null
+  @screen:
+    w: null
+    h: null
+  @go: (x,y) ->
+    terminal.cursor.x = x
+    terminal.cursor.y = y
+    terminal.esc terminal.esc.POS x, y; @
+  @fg: (color) -> terminal.esc terminal.esc.color[color]; @
+  @bg: (color) -> terminal.esc terminal.esc.color['bg_'+color]; @
+  @xfg: (i) -> terminal.esc terminal.esc.color.xterm i; @
+  @xbg: (i) -> terminal.esc terminal.esc.color.bg_xterm i; @

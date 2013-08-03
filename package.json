@@ -6,10 +6,13 @@
   "dependencies": {
     "keypress": "~0.2.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "chai": "~1.7.2",
+    "coffee-script": "~1.6.3"
+  },
   "scripts": {
     "pretest": "coffee --bare -o static/ precompile/",
-    "test": "exit 0"
+    "test": "mocha --reporter spec --bail --ui bdd --colors --compilers coffee:coffee-script test/test.coffee"
   },
   "repository": "",
   "author": "Mike Smullin <mike@smullindesign.com>",
