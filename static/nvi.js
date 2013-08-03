@@ -97,8 +97,34 @@ clear_eol = function() {
   return terminal.echo(repeat(w_delta, ' '));
 };
 
-terminal.xbg(gutter_bg).xfg(gutter_fg);
+terminal.go(0, 0).xbg(gutter_bg).xfg(gutter_fg).clear().echo('   1 ');
 
-clear_screen();
+terminal.xbg(text_bg).xfg(text_fg).echo("how is this?                           \n");
+
+terminal.xbg(gutter_bg).xfg(gutter_fg).echo('   2 ');
+
+terminal.xbg(text_bg).xfg(text_fg).echo("hehe                                   \n");
+
+terminal.xbg(gutter_bg).xfg(gutter_fg).echo("                                            \n");
+
+terminal.xbg(gutter_bg).xfg(gutter_fg).echo("                                            \n");
+
+terminal.xbg(gutter_bg).xfg(gutter_fg).echo("                                            \n");
+
+terminal.xbg(gutter_bg).xfg(gutter_fg).echo("                                            \n");
+
+terminal.xbg(gutter_bg).xfg(gutter_fg).echo("                                            \n");
+
+/*
+terminal.xbg(gutter_bg).xfg(gutter_fg)#.clear()
+clear_screen()
+#terminal.go(1,1).echo('  1 ').xfg(text_fg).xbg(text_bg).echo("how is this?")
+##terminal.esc terminal.esc.CLEAR_EOL
+#clear_eol()
+#terminal.xbg(gutter_bg).xfg(gutter_fg).go(1,2).echo('~   ')
+##terminal.esc terminal.esc.CLEAR_EOL
+#terminal.go(16,1).xfg(255)
+*/
+
 
 process.stdin.resume();
