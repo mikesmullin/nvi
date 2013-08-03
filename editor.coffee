@@ -57,4 +57,20 @@ if process.stdout.isTTY
 
 console.log "watch! this is going to become like vim! :)"
 
+ctl = (s) ->
+  terminal.echo "\u001b"+s
+ctl.CLEAR = '[2J'
+ctl.POS = (x,y) -> "[#{y};#{x}H"
 
+terminal =
+  echo: (s) ->
+    process.stdout.write s
+    @
+  reset: ->
+    ctl ctl.CLEAR
+    @
+  go: (x,y) ->
+    ctl ctl.POS x, y
+    @
+
+terminal.reset().go(0,0).echo('hello curses world!')
