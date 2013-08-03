@@ -62,36 +62,47 @@ class ctl # ansi escape sequences / control characters/codes
   @CLEAR: '[2J'
   @POS: (x, y) -> "[#{y};#{x}H"
   @color: class
-    @reset:          "[0m"
-    @black:          "[30m"
-    @red:            "[31m"
-    @green:          "[32m"
-    @yellow:         "[33m"
-    @blue:           "[34m"
-    @magenta:        "[35m"
-    @cyan:           "[36m"
-    @white:          "[37m"
-    @grey:           "[1m\u001b[30m"
-    @bright_red:     "[1m\u001b[31m"
-    @bright_green:   "[1m\u001b[32m"
-    @bright_yellow:  "[1m\u001b[33m"
-    @bright_blue:    "[1m\u001b[34m"
-    @bright_magenta: "[1m\u001b[35m"
-    @bright_cyan:    "[1m\u001b[36m"
-    @bright_white:   "[1m\u001b[37m"
+    # modifiers
+    @bold        : '[1m'
+    # foreground
+    @reset       : '[0m'
+    @black       : '[30m'
+    @red         : '[31m'
+    @green       : '[32m'
+    @yellow      : '[33m'
+    @blue        : '[34m'
+    @magenta     : '[35m'
+    @cyan        : '[36m'
+    @white       : '[37m'
+    # background
+    @bg_reset    : '[49m'
+    @bg_black    : '[40m'
+    @bg_red      : '[41m'
+    @bg_green    : '[42m'
+    @bg_yellow   : '[43m'
+    @bg_blue     : '[44m'
+    @bg_magenta  : '[45m'
+    @bg_cyan     : '[46m'
+    @bg_white    : '[47m'
 
 class terminal
   @echo: (s) -> process.stdout.write s; @
-  @reset: -> ctl ctl.CLEAR; @
+  @clear: -> ctl ctl.CLEAR; @
   @go: (x,y) -> ctl ctl.POS x, y; @
   @fg: (color) -> ctl ctl.color[color]; @
+  @bg: (color) -> ctl ctl.color['bg_'+color]; @
 
-terminal.reset().go(0,0).echo "hello curses world!\n"
+terminal.clear().go(0,0).echo "hello curses world!\n"
 
-for prefix in ['', 'bright_']
-  for suffix in 'black red green yellow blue magenta cyan white grey'.split ' '
-    color = prefix+suffix
-    if ctl.color[color]?
-      terminal.fg(color).echo color
+for layer in ['', 'bg_']
+  for bold in [0, 1]
+    terminal.echo "\n"
+    for color in 'black red green yellow blue magenta cyan white'.split ' '
+      color_name = "#{layer}#{color}"
+      terminal.fg('bold') if bold
+      if layer is ''
+        terminal.fg(color).echo(color_name).fg('reset')
+      else
+        terminal.bg(color).fg('white').echo(color_name).bg('reset')
 
 terminal.echo "\n"
