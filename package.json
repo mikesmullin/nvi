@@ -8,7 +8,8 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pretest": "coffee --bare -o static/ precompile/",
+    "test": "exit 0"
   },
   "repository": "",
   "author": "Mike Smullin <mike@smullindesign.com>",
