@@ -59,7 +59,9 @@ console.log "watch! this is going to become like vim! :)"
 
 class ctl # ansi escape sequences / control characters/codes
   constructor: (s) -> terminal.echo "\u001b"+s
-  @CLEAR: '[2J'
+  @CLEAR_SCREEN: '[2J'
+  @CLEAR_EOL: '[K'
+  @CLEAR_EOF: '[J'
   @POS: (x, y) -> "[#{y};#{x}H"
   @color: class
     # modifiers
@@ -92,7 +94,7 @@ class ctl # ansi escape sequences / control characters/codes
 
 class terminal
   @echo: (s) -> process.stdout.write s; @
-  @clear: -> ctl ctl.CLEAR; @
+  @clear: -> ctl ctl.CLEAR_SCREEN; @
   @go: (x,y) -> ctl ctl.POS x, y; @
   @fg: (color) -> ctl ctl.color[color]; @
   @bg: (color) -> ctl ctl.color['bg_'+color]; @
@@ -119,8 +121,18 @@ for i in [0..255]
 
 terminal.echo "\n"
 
+text_fg = 255
+text_bg = 235
+gutter_bg = 234
+gutter_fg = 240
+
+terminal.echo "\n"
 global.delay = (s,f) -> setTimeout f, s
 global.interval = (s,f) -> setInterval f, s
-#terminal.echo "now let's try to clear the screen with gray background\n"
-#delay 15000, ->
-#  terminal.fg('bold').bg('black').clear().fg('unbold').fg('white').go(0,0).echo("how is this?\n")
+terminal.echo "now let's try to clear the screen with gray background\n"
+delay 1000, ->
+  terminal.xbg(gutter_bg).xfg(gutter_fg).clear().go(1,1).echo('  1 ').xfg(text_fg).xbg(text_bg).echo("how is this?")
+  ctl ctl.CLEAR_EOL
+  terminal.xbg(gutter_bg).xfg(gutter_fg).go(1,2).echo('~   ')
+  ctl ctl.CLEAR_EOL
+  terminal.go(16,1).xfg(255)
