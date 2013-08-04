@@ -239,4 +239,11 @@ the modes i'll implement will be:
 
 
 
+treat views like a tiling window manager
+create a Tab object like tmux-style tabs
+  tabs will have user's names in collab mode
+
+so it starts with one tab and one view
+you can never have fewer than one view open
+if you do its just resetting the file to an untitled in-memory buffer
 

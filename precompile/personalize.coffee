@@ -46,6 +46,8 @@ class View
 # belong to a user
 # has one hydrabuffer
 # renders both text and cursors from hydrabuffers
+# redraws its section of real-estate on-screen
+# the treeview is a view, too with an option set for curline_bg
   constructor: ->
     @hydrabuffer = HydraBuffer
     @user = User
@@ -53,7 +55,10 @@ class View
     @h = null
     @offset = null
 
-
+class Tab
+# has many views
+  constructor: ->
+    @views: []
 
 
 module.exports = (nvi) ->
