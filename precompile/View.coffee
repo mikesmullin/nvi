@@ -17,18 +17,29 @@ module.exports = class View
     @lines = @buffer.data.split("\n")
     @lines.pop() # discard last line erroneously appended by fs.read
     @lines = [''] unless @lines.length >= 1 # may never have less than one line
-    @gutter = repeat (Math.max 3, @lines.length.toString().length + 2), ' '
+    @gutter = repeat (Math.max 4, @lines.length.toString().length + 2), ' '
     @resize x: o.x, y: o.y, w: o.w, h: o.h
-    # although there can be many cursors in a single view
-    # @cursors[0] is always the current_user's cursor
-    # the remaining cursors belong to other views/users of the same file
-    @cursors = [new ViewCursor user: Window.current_user, view: @, x: @x, y: @y]
-    Window.set_status "\"#{@buffer.alias}\", #{@lines.length}L, #{@buffer.data.length}C"
+
+    #Window.set_status "\"#{@buffer.base}\", #{@lines.length}L, #{@buffer.data.length}C"
+    @set_status Terminal
+      .xbg(NviConfig.view_status_bar_active_l1_bg).xfg(NviConfig.view_status_bar_active_l1_fg)
+      .echo(@buffer.path).fg('bold')
+      .xfg(NviConfig.view_status_bar_active_l1_fg_bold).echo(@buffer.base+' ')
+      .fg('unbold')
+      .xbg(NviConfig.view_status_bar_active_bg).xfg(NviConfig.view_status_bar_active_fg)
+      .get_clean()
+
+    # a view has one or more cursors
+    # but only one is possessed at a given time
+    # cursor 0 is always the current_user's cursor
+    # only cursor 0 can become possessed by the current_user
+    @cursors = [new ViewCursor user: Window.current_user, view: @, x: @x, y: @y, possessed: true]
+    return
   resize: (o) ->
     Logger.out "View.resize(#{JSON.stringify o})"
-    @x = o.x
+    @x = o.x if o.x
     die "View.x may not be less than 1!" if @x < 1
-    @y = o.y
+    @y = o.y if o.y
     die "View.y may not be less than 1!" if @y < 1
     @w = o.w
     die "View.w may not be less than 1!" if @w < 1
@@ -36,31 +47,44 @@ module.exports = class View
     @h = o.h; die "View.h may not be less than 2!" if @h < 2
     # inner height (after decorators like status bar)
     @iw = o.w
-    @ih = o.h - 1
+    @ih = o.h - 1 # make room for status bar
     @draw()
+    return
   draw_status_bar: ->
-    x = @x; y = @y + @h; w = @w; h = 1
-    Terminal.clear_space x: x, y: y, w: w, h: h, fg: 255, bg: 196
-    Terminal.echo "View.status_bar here"
+    Terminal.clear_space
+      x: @x, y: @y + @ih, w: @w, h: 1,
+      bg: NviConfig.view_status_bar_active_bg,
+      fg: NviConfig.view_status_bar_active_fg
+    return
   draw: ->
     Logger.out 'View.draw() was called.'
     # count visible lines; truncate to view inner height when necessary
     visible_line_h = Math.min @lines.length, @ih
     # draw visible lines
     # TODO: fix last line shown always on bottom; overriding actual line
-    for ln in [0..visible_line_h]
+    for ln in [0...visible_line_h]
       line = @lines[ln]
       # if necessary, truncate line to visible width and append a truncation symbol (>)
       if line.length > @iw then line = line.substr(0, @iw-1)+'>'
       # draw line gutter
-      Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(@x,@y+ln).echo((@gutter+(ln+1)).substr((@gutter.length-1) * -1)+' ')
+      # TODO: we shouldn't have to keep setting go(). we clear to eol so it should line up perfectly on next line
+      #       just set go once outside of for() and then fix the Terminal.echo() math
+      Terminal.xbg(NviConfig.view_gutter_bg).xfg(NviConfig.view_gutter_fg).go(@x,@y+ln).echo((@gutter+(ln+1)).substr(-1*(@gutter.length-1))+' ')
       # echo line, erasing any remaining line space to end of visible width
-      Terminal.xbg(NviConfig.text_bg).xfg(NviConfig.text_fg).echo(line).clear_n(@iw - line.length)
+      Terminal.xbg(NviConfig.view_text_bg).xfg(NviConfig.view_text_fg).echo(line).clear_n(@iw - @gutter.length - line.length).flush()
     # draw tilde placeholder lines, erasing any remaining line space to end of visible height
-    # TODO: fix tildes not being redrawn on resize
     if visible_line_h < @ih
-      for y in [visible_line_h..@ih]
-        Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(@x,@y+y).fg('bold').echo('~').fg('unbold').clear_n(@iw-1)
-
+      for y in [visible_line_h...@ih]
+        Terminal.xbg(NviConfig.view_gutter_bg).xfg(NviConfig.view_gutter_fg).go(@x,@y+y).fg('bold').echo('~').fg('unbold').clear_n(@iw-1).flush()
     @draw_status_bar()
-    @cursors[0].return_to_user()
+    if @cursors
+      cursor.draw() for cursor in @cursors
+    return
+  set_status: (s) ->
+    @draw_status_bar()
+    #TODO: find out why this doesn't clear to eol
+    Terminal.echo(s.substr(0, View.w)).clear_eol().flush()
+    # TODO: this may not always be the right thing to do
+    if @cursors
+      @cursors[0].draw() # return cursor to user
+    return

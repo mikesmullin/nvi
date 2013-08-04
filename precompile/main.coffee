@@ -6,7 +6,7 @@ global.Logger = require './Logger'
 global.Terminal = require './Terminal'
 global.delay = (s,f) -> setTimeout f, s
 global.interval = (s,f) -> setInterval f, s
-global.repeat = (n,s) -> o = ''; o += s for i in [0..n]; o
+global.repeat = (n,s) -> o = ''; o += s for i in [0...n]; o
 #global._throttles = {}
 #global.throttle = (ms, k, f) -> ->
 #  return if _throttles[k]
@@ -18,14 +18,14 @@ cleaned_up = false
 cleanup = ->
   return if cleaned_up
   process.stdin.pause() # stop waiting for input
-  Terminal.fg('reset').clear().go 1, 1
+  Terminal.fg('reset').clear().go(1,1).flush()
   cleaned_up = true
 process.on 'exit', cleanup
 global.die = (err) ->
   cleanup()
   if err
-    console.trace()
-    process.stderr.write "\n"+err+"\n\n" # output the error
+    process.stderr.write err+"\n" # output the error
+    console.trace() # with a backtrace
     process.exit 1 # exit with non-zero error code
   process.stdout.write "see you soon!\n"
   process.exit 0

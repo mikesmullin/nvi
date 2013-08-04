@@ -23,10 +23,15 @@ module.exports = class HydraBuffer
       # TODO: maybe fs.realpath() is useful here to resolve past symlinks?
       buffer =
         type: 'file'
-        id: path.resolve o.file
-        alias: path.basename o.file
+        id:   path.resolve o.file
+        path: path.join path.dirname(o.file), path.sep
+        base: path.basename o.file
     else
-      buffer = type: 'memory', id: null, alias: 'untitled'
+      buffer =
+        type: 'memory'
+        id: null
+        path: ''
+        base: '[No Name]'
 
     # decide whether or not this is a unique request
     if buffer.id is null or HydraBuffer.buffers[buffer.id] is undefined

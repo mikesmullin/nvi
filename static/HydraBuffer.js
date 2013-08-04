@@ -14,13 +14,15 @@ module.exports = HydraBuffer = (function() {
       buffer = {
         type: 'file',
         id: path.resolve(o.file),
-        alias: path.basename(o.file)
+        path: path.join(path.dirname(o.file), path.sep),
+        base: path.basename(o.file)
       };
     } else {
       buffer = {
         type: 'memory',
         id: null,
-        alias: 'untitled'
+        path: '',
+        base: '[No Name]'
       };
     }
     if (buffer.id === null || HydraBuffer.buffers[buffer.id] === void 0) {

@@ -363,3 +363,5 @@ the screen
 
 its important to differentiate between the Terminal.cursor (there is only one; used to draw the screen)
 and the ViewCursor (there can be one or more per view; used by users to traverse a view)
+additionally between a ViewCursor that is the currently possessed (uses Terminal.cursor)
+and a ViewCursor that is not possessed (unfocused, or someone else's cursor; drawn manually)

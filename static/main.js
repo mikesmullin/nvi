@@ -18,7 +18,7 @@ global.interval = function(s, f) {
 global.repeat = function(n, s) {
   var i, o, _i;
   o = '';
-  for (i = _i = 0; 0 <= n ? _i <= n : _i >= n; i = 0 <= n ? ++_i : --_i) {
+  for (i = _i = 0; 0 <= n ? _i < n : _i > n; i = 0 <= n ? ++_i : --_i) {
     o += s;
   }
   return o;
@@ -31,7 +31,7 @@ cleanup = function() {
     return;
   }
   process.stdin.pause();
-  Terminal.fg('reset').clear().go(1, 1);
+  Terminal.fg('reset').clear().go(1, 1).flush();
   return cleaned_up = true;
 };
 
@@ -40,8 +40,8 @@ process.on('exit', cleanup);
 global.die = function(err) {
   cleanup();
   if (err) {
+    process.stderr.write(err + "\n");
     console.trace();
-    process.stderr.write("\n" + err + "\n\n");
     process.exit(1);
   }
   process.stdout.write("see you soon!\n");

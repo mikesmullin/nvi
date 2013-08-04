@@ -4,92 +4,112 @@ var Terminal;
 module.exports = Terminal = (function() {
   function Terminal() {}
 
-  Terminal.echo = function(s) {
-    var w_delta;
-    w_delta = s.length;
-    if (w_delta) {
-      s.replace(/[\r\n]+/, function() {
-        Terminal.cursor.y++;
-        return '';
-      });
-      Terminal.cursor.x += w_delta;
-      if (Terminal.cursor.x > Terminal.screen.w) {
-        Terminal.cursor.y += Math.floor(Terminal.cursor.x / Terminal.screen.w);
-        Terminal.cursor.x = Terminal.cursor.x % Terminal.screen.w;
-      }
-    }
+  Terminal.write = function(s) {
     process.stdout.write(s);
     return this;
   };
 
-  Terminal.esc = (function() {
-    function _Class(s) {
-      process.stdout.write("\x1b" + s);
+  Terminal.buffer = '';
+
+  Terminal.push_raw = function(s) {
+    Terminal.buffer += s;
+    return this;
+  };
+
+  Terminal.echo = function(s) {
+    if (s.length) {
+      Terminal.cursor.x += s.length;
+      if (Terminal.cursor.x > Terminal.screen.w) {
+        Terminal.cursor.y += Math.floor(Terminal.cursor.x / Terminal.screen.w);
+        Terminal.cursor.x = Terminal.cursor.x % Terminal.screen.w;
+      }
+      s.replace(/\n/g, function() {
+        return Terminal.cursor.y++;
+      });
+      Terminal.push_raw(s);
     }
+    return this;
+  };
 
-    _Class.CLEAR_SCREEN = '[2J';
+  Terminal.flush = function() {
+    Terminal.write(Terminal.buffer);
+    Terminal.buffer = '';
+    return this;
+  };
 
-    _Class.CLEAR_EOL = '[K';
+  Terminal.get_clean = function() {
+    var b;
+    b = Terminal.buffer;
+    Terminal.buffer = '';
+    return b;
+  };
 
-    _Class.CLEAR_EOF = '[J';
+  Terminal.ansi_esc = (function() {
+    function _Class() {}
 
-    _Class.POS = function(x, y) {
-      return "[" + y + ";" + x + "H";
+    _Class.cursor_pos = function(x, y) {
+      return "\x1b[" + y + ";" + x + "H";
     };
+
+    _Class.clear_screen = '\x1b[2J';
+
+    _Class.clear_eol = '\x1b[K';
+
+    _Class.clear_eof = '\x1b[J';
 
     _Class.color = (function() {
       function _Class() {}
 
-      _Class.reset = '[0m';
+      _Class.reset = '\x1b[0m';
 
-      _Class.bold = '[1m';
+      _Class.bold = '\x1b[1m';
 
-      _Class.inverse = '[7m';
+      _Class.inverse = '\x1b[7m';
 
-      _Class.strike = '[9m';
+      _Class.strike = '\x1b[9m';
 
-      _Class.unbold = '[22m';
+      _Class.unbold = '\x1b[22m';
 
-      _Class.black = '[30m';
+      _Class.black = '\x1b[30m';
 
-      _Class.red = '[31m';
+      _Class.red = '\x1b[31m';
 
-      _Class.green = '[32m';
+      _Class.green = '\x1b[32m';
 
-      _Class.yellow = '[33m';
+      _Class.yellow = '\x1b[33m';
 
-      _Class.blue = '[34m';
+      _Class.blue = '\x1b[34m';
 
-      _Class.magenta = '[35m';
+      _Class.magenta = '\x1b[35m';
 
-      _Class.cyan = '[36m';
+      _Class.cyan = '\x1b[36m';
 
-      _Class.white = '[37m';
+      _Class.white = '\x1b[37m';
 
       _Class.xterm = function(i) {
-        return "[38;5;" + i + "m";
+        return "\x1b[38;5;" + i + "m";
       };
 
-      _Class.bg_reset = '[49m';
+      _Class.bg_reset = '\x1b[49m';
 
-      _Class.bg_black = '[40m';
+      _Class.bg_black = '\x1b[40m';
 
-      _Class.bg_red = '[41m';
+      _Class.bg_red = '\x1b[41m';
 
-      _Class.bg_green = '[42m';
+      _Class.bg_green = '\x1b[42m';
 
-      _Class.bg_yellow = '[43m';
+      _Class.bg_yellow = '\x1b[43m';
 
-      _Class.bg_blue = '[44m';
+      _Class.bg_blue = '\x1b[44m';
 
-      _Class.bg_magenta = '[45m';
+      _Class.bg_magenta = '\x1b[45m';
 
-      _Class.bg_cyan = '[46m';
+      _Class.bg_cyan = '\x1b[46m';
 
-      _Class.bg_white = '[47m';
+      _Class.bg_white = '\x1b[47m';
 
       _Class.bg_xterm = function(i) {
-        return "[48;5;" + i + "m";
+        return "\x1b[48;5;" + i + "m";
       };
 
       return _Class;
@@ -101,8 +121,7 @@ module.exports = Terminal = (function() {
   }).call(this);
 
   Terminal.clear = function() {
-    Terminal.esc(Terminal.esc.CLEAR_SCREEN);
-    return this;
+    return Terminal.push_raw(Terminal.ansi_esc.clear_screen);
   };
 
   Terminal.cursor = {
@@ -117,20 +136,20 @@ module.exports = Terminal = (function() {
 
   Terminal.go = function(x, y) {
     if (x < 1) {
-      die("Terminal.cursor.x " + x + " may not be less than one!");
+      die("Terminal.cursor.x " + x + " may not be less than 1!");
     }
     if (x > Terminal.screen.w) {
       die("Terminal.cursor.x " + x + " may not be greater than Terminal.screen.w or " + Terminal.screen.w + "!");
     }
     Terminal.cursor.x = x;
     if (y < 1) {
-      die("Terminal.cursor.y " + y + " may not be less than one!");
+      die("Terminal.cursor.y " + y + " may not be less than 1!");
     }
     if (y > Terminal.screen.h) {
       die("Terminal.cursor.y " + y + " may not be greater than Terminal.screen.h or " + Terminal.screen.h + "!");
     }
     Terminal.cursor.y = y;
-    Terminal.esc(Terminal.esc.POS(Terminal.cursor.x, Terminal.cursor.y));
+    Terminal.push_raw(Terminal.ansi_esc.cursor_pos(Terminal.cursor.x, Terminal.cursor.y));
     Logger.out("Terminal.cursor = x: " + Terminal.cursor.x + ", y: " + Terminal.cursor.y);
     return this;
   };
@@ -143,55 +162,52 @@ module.exports = Terminal = (function() {
     dx = Terminal.cursor.x + x;
     dy = Terminal.cursor.y + y;
     if (dx >= 0 && dx <= Terminal.screen.w && dy >= 0 && dy <= Terminal.screen.h) {
-      return this.go(dx, dy);
+      this.go(dx, dy);
     }
+    return this;
   };
 
   Terminal.fg = function(color) {
-    Terminal.esc(Terminal.esc.color[color]);
-    return this;
+    return Terminal.push_raw(Terminal.ansi_esc.color[color]);
   };
 
   Terminal.bg = function(color) {
-    Terminal.esc(Terminal.esc.color['bg_' + color]);
-    return this;
+    return Terminal.push_raw(Terminal.ansi_esc.color['bg_' + color]);
   };
 
   Terminal.xfg = function(i) {
-    Terminal.esc(Terminal.esc.color.xterm(i));
-    return this;
+    return Terminal.push_raw(Terminal.ansi_esc.color.xterm(i));
   };
 
   Terminal.xbg = function(i) {
-    Terminal.esc(Terminal.esc.color.bg_xterm(i));
-    return this;
+    return Terminal.push_raw(Terminal.ansi_esc.color.bg_xterm(i));
   };
 
   Terminal.clear_screen = function() {
     var y, _i, _ref;
-    Terminal.go(1, 1).clear();
+    Terminal.clear();
     for (y = _i = 1, _ref = Terminal.screen.h; 1 <= _ref ? _i <= _ref : _i >= _ref; y = 1 <= _ref ? ++_i : --_i) {
+      Terminal.go(1, y);
       Terminal.clear_eol();
     }
-    Terminal.go(1, 1);
     return this;
   };
 
   Terminal.clear_n = function(n) {
-    Terminal.echo(repeat(n, ' '));
-    return this;
+    return Terminal.echo(repeat(n, ' '));
   };
 
   Terminal.clear_eol = function() {
-    return Terminal.clear_n(Terminal.screen.w - Terminal.cursor.x);
+    return Terminal.clear_n(Terminal.screen.w - Terminal.cursor.x + 1);
   };
 
   Terminal.clear_space = function(o) {
     var y, _i, _ref, _ref1;
-    for (y = _i = _ref = o.y, _ref1 = o.y + o.h; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; y = _ref <= _ref1 ? ++_i : --_i) {
+    for (y = _i = _ref = o.y, _ref1 = o.y + o.h - 1; _ref <= _ref1 ? _i <= _ref1 : _i >= _ref1; y = _ref <= _ref1 ? ++_i : --_i) {
       Terminal.xbg(o.bg).go(o.x, y).clear_n(o.w);
     }
-    return Terminal.go(o.x, o.y).xbg(o.bg).xfg(o.fg);
+    Terminal.go(o.x, o.y).xbg(o.bg).xfg(o.fg).flush();
+    return this;
   };
 
   return Terminal;

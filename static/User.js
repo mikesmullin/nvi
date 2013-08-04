@@ -7,6 +7,7 @@ module.exports = User = (function() {
     this.name = o.name;
     this.email = o.email;
     this.color = o.color;
+    return;
   }
 
   return User;

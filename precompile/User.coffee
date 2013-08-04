@@ -6,3 +6,4 @@ module.exports = class User
     @email = o.email # email
     @color = o.color # ansi xterm 256-color id
     #@views = []
+    return

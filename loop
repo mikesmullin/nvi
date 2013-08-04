@@ -28,6 +28,6 @@ trap ctrl_backslash SIGQUIT
 while true; do
   reset;
   npm test && \
-  bin/nvi;
+  slnode debug -s static/main.js;
   cat # pause to read output
 done
