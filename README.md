@@ -323,3 +323,9 @@ except some really long lines could mess with us there
 
 110,10,115:abcdefgh
 
+bah, i'm making it too complicated. i can be a bad-ass later. its getting late.
+
+so i'll just use buffers for now
+and always assume that the file will fit in memory
+and that transmitting a file-at-a-time from host to client is fast enough
+

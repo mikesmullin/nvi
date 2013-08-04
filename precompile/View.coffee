@@ -1,11 +1,11 @@
-HydraStream = require './HydraStream'
+HydraBuffer = require './HydraBuffer'
 Cursor = require './Cursor'
 
 module.exports = class View
 # belong to a user
-# has one hydrastream
-# renders text from hydrastreams
-# also renders cursors over the top of hydrastream text
+# has one hydrabuffer
+# renders text from hydrabuffers
+# also renders cursors over the top of hydrabuffer text
 # redraws its section of real-estate on-screen on-demand
 # remember: treeview is also a view, with an option set for curline_bg
   constructor: (o) ->
@@ -14,9 +14,9 @@ module.exports = class View
     @cursors = [new Cursor] # cursor 0 is always my_cursor
     # or the one that is controlled by the current_user
     # the rest of the cursors belong to other views/users of the same file
-    @hydrastream = HydraStream view: @, file: o.file # will instantiate itself if needed
+    @hydrabuffer = HydraBuffer view: @, file: o.file # will instantiate itself if needed
     # that depends on whether we were given a filename
-    # but let HydraStream track and decide on this internally
+    # but let HydraBuffer track and decide on this internally
     @w = null
     @h = null
     @offset = null
