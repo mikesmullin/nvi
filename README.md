@@ -171,4 +171,51 @@ NO that silly git diff shit is not applicable; it doesn't resolve changes on the
     move cursor absolute x, y or relative -x, -y
 
 
+when syncing hydrabuffers / views
+  clients will write changes to disk, without filler
+  as the view scrolls up/down the file will be prepended/appended
+  until the file is complete
+
+  if a user changes a file outside of nvim which they don't have a complete dataset for
+   hmm
+
+  ok getting too fancy here / prematurely optimizing / overengineering
+  let's K.I.S.S.
+
+  we'll transfer the whole ascii file to clients as they request to view it
+  and then we'll work to keep it in sync from there
+  its really not that much data to transfer
+
+  except am i solving anything the other way around?
+  a lot of times sync errors happen while users are editing in the areas
+  we aren't currently watching for changes in
+
+  i kind of like my ssh-vim-like approach
+
+  ok so in that vain, the client does not buffer or store ANY data locally
+  this way it cannot possibly go out of sync
+  if it does, they just close/reopen the file to get back in sync
+  sync will happen on a per-view basis
+
+  same as if you opened a file and someone changed it while you were reading it
+
+  this is also good because it functionally reinforces the idea of
+  requiring clients to check-in new files or binary file changes
+  by issuing special commands to have them imported to the host
+
+  and then with that i can refuse to render binary files altogether
+  just display an error like 'binary files unsupported; utf8 text only'
+
+  so if someone wanted to edit a binary file in this flow, they would
+  have to issue a special command to fetch the binfile
+  then edit it locally
+  then issue a special command to upload the binfile
+  thus greatly reducing incidental sync errors
+  and unnecessary data transfer
+
+
+
+
+
+
 
