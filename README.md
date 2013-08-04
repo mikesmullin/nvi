@@ -258,6 +258,5 @@ a view can never be less than 1 char high
 and 1 char wide;
   for every line that isnt wrapped but is cutoff by a short viewport, a > is ending that line
 
-
-
+opening more than one tab creates a 1char high tabbar at top of the screen
 

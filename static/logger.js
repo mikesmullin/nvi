@@ -9,11 +9,9 @@ module.exports = logger = (function() {
   function logger() {}
 
   logger.out = function(s) {
-    return fs.appendFile(path.join(__dirname, '..', 'logs', 'nvi.log'), s + "\n", function(err) {
-      if (err) {
-        throw err;
-      }
-    });
+    var filename;
+    filename = path.join(__dirname, '..', 'logs', 'nvi.log');
+    return fs.appendFileSync(filename, s + "\n");
   };
 
   return logger;

@@ -12,11 +12,15 @@ module.exports = terminal = (function() {
         terminal.cursor.y++;
         return '';
       });
+      logger.out("cx was " + terminal.cursor.x + ", cy was " + terminal.cursor.y);
+      logger.out("s.length " + w_delta + " s=\"" + s + "\"");
+      logger.out("terminal.screen: " + (JSON.stringify(terminal.screen)));
       terminal.cursor.x += w_delta;
       if (terminal.cursor.x > terminal.screen.w) {
         terminal.cursor.y += Math.floor(terminal.cursor.x / terminal.screen.w);
         terminal.cursor.x = terminal.cursor.x % terminal.screen.w;
       }
+      logger.out("cx now " + terminal.cursor.x + ", cy now " + terminal.cursor.y);
     }
     process.stdout.write(s);
     return this;
