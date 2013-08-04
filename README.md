@@ -247,3 +247,17 @@ so it starts with one tab and one view
 you can never have fewer than one view open
 if you do its just resetting the file to an untitled in-memory buffer
 
+when you add another view
+  you can only do so by using a specific key combination / cmd
+  to indicate a vsplit or hsplit or new tab
+
+so when this happens, the default is to divide the tab 50/50
+then the user can click and drag to resize from there
+
+a view can never be less than 1 char high
+and 1 char wide;
+  for every line that isnt wrapped but is cutoff by a short viewport, a > is ending that line
+
+
+
+
