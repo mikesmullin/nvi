@@ -31,7 +31,10 @@ module.exports = Window = (function() {
         active: true
       })
     ];
-    return Window.mode = 'COMBO';
+    Window.mode = 'COMBO';
+    Window.command_line = '';
+    Window.command_history = [];
+    return Window.command_history_position = 0;
   };
 
   Window._resize = function() {
@@ -64,29 +67,105 @@ module.exports = Window = (function() {
   };
 
   Window.keypress = function(ch, key) {
+    var cmd, code, x;
     Logger.out("caught keypress: " + JSON.stringify(arguments));
-    if (!key) {
+    code = ch ? ch.charCodeAt(0) : -1;
+    if (Window.mode === 'COMMAND') {
+      if (code > 31 && code < 127) {
+        Window.command_line += ch;
+        Logger.out("type cmd len " + Window.command_line.length);
+        Terminal.echo(ch);
+      } else if (key.name === 'escape') {
+        Window.change_mode('COMBO');
+      } else if (key.name === 'backspace') {
+        Logger.out("Terminal.cursor.x " + Terminal.cursor.x);
+        if (Terminal.cursor.x > 1 && Window.command_line.length > 0) {
+          x = Terminal.cursor.x - 1;
+          cmd = Window.command_line.substr(0, x - 2);
+          cmd += Window.command_line.substr(x - 1, Window.command_line.length - x + 1);
+          Window.command_line = cmd;
+          Logger.out("bksp cmd len " + Window.command_line.length + ", cmd " + Window.command_line);
+          Window.set_status(':' + cmd);
+          Terminal.go(x, Terminal.screen.h);
+        }
+      } else if (key.name === 'left') {
+        if (Terminal.cursor.x > 2) {
+          Terminal.move(-1);
+        }
+      } else if (key.name === 'right') {
+        if (Terminal.cursor.x < Window.command_line.length + 2) {
+          Terminal.move(1);
+        }
+      } else if (key.name === 'home') {
+        Terminal.go(2, Terminal.screen.h);
+      } else if (key.name === 'end') {
+        Terminal.go(Window.command_line.length + 2, Terminal.screen.h);
+      } else if (key.name === 'up') {
+        1;
+      } else if (key.name === 'down') {
+        1;
+      } else if (key.name === 'return') {
+        Window.execute_cmd(Window.command_line);
+        Window.command_line = '';
+        Window.change_mode('COMBO');
+      }
+    }
+    if (Window.mode === 'COMBO') {
+      switch (ch) {
+        case 'i':
+          Window.change_mode('NORMAL');
+          return;
+        case ':':
+          Window.mode = 'COMMAND';
+          Window.clear_status_bar();
+          Window.move_to_status_bar();
+          Terminal.echo(':');
+          return;
+      }
+    }
+    if (ch === "\u0003") {
+      Window.set_status('Type :quit<Enter> to exit Nvi');
       return;
     }
-    if (key.ctrl && key.name === 'c') {
-      die('');
+    if ((Window.mode === 'NORMAL' || Window.mode === 'COMBO') && key) {
+      switch (key.name) {
+        case 'escape':
+          return Window.change_mode('COMBO');
+        case 'left':
+          return Window.current_cursor().move(-1);
+        case 'right':
+          return Window.current_cursor().move(1);
+        case 'up':
+          return Window.current_cursor().move(0, -1);
+        case 'down':
+          return Window.current_cursor().move(0, 1);
+      }
     }
-    switch (key.name) {
-      case 'escape':
-        return 1;
-      case 'left':
-        return Window.current_cursor().move(-1);
-      case 'right':
-        return Window.current_cursor().move(1);
-      case 'up':
-        return Window.current_cursor().move(0, -1);
-      case 'down':
-        return Window.current_cursor().move(0, 1);
+  };
+
+  Window.execute_cmd = function(cmd) {
+    Logger.out("would execute command: " + Window.command_line);
+    Window.command_history.push(Window.command_line);
+    switch (cmd) {
+      case 'x':
+      case 'wq':
+        return die('');
+      case 'q':
+      case 'quit':
+        return die('');
     }
   };
 
   Window.mousepress = function(e) {
     return Logger.out("caught mousepress: " + JSON.stringify(e));
+  };
+
+  Window.change_mode = function(mode) {
+    Window.mode = mode;
+    Window.clear_status_bar();
+    Window.move_to_status_bar();
+    Terminal.xfg(NviConfig.mode_fg).fg('bold').echo("-- " + Window.mode + " --").fg('unbold').xfg(NviConfig.status_bar_fg).clear_eol();
+    return Window.current_cursor().move(0);
   };
 
   Window.current_cursor = function() {

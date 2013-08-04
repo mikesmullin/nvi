@@ -11,6 +11,7 @@
   "normal_mode_fg" : 148,
   "replace_mode_bg" : 196,
   "replace_mode_fg" : 255,
+  "mode_fg" : 221,
   "user": {
     "id"    : "mike",
     "name"  : "Mike Smullin",
