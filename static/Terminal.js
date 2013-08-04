@@ -116,9 +116,9 @@ module.exports = Terminal = (function() {
   };
 
   Terminal.go = function(x, y) {
-    Terminal.cursor.x = x;
-    Terminal.cursor.y = y;
-    Terminal.esc(Terminal.esc.POS(x, y));
+    Terminal.cursor.x = x || 1;
+    Terminal.cursor.y = y || 1;
+    Terminal.esc(Terminal.esc.POS(Terminal.cursor.x, Terminal.cursor.y));
     return this;
   };
 
@@ -129,7 +129,7 @@ module.exports = Terminal = (function() {
     }
     dx = Terminal.cursor.x + x;
     dy = Terminal.cursor.y + y;
-    if (dx > 4 && dx < Terminal.screen.w && dy > 0 && dy <= Terminal.screen.h) {
+    if (dx >= 0 && dx <= Terminal.screen.w && dy >= 0 && dy <= Terminal.screen.h) {
       return this.go(dx, dy);
     }
   };

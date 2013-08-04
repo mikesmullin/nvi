@@ -21,29 +21,34 @@ module.exports = class View
     @y = o.y
     @w = o.w
     @h = o.h
+    @gutter_width = 4
     @offset = null
-  resize: ->
+  resize: ({@w, @h}) ->
+    Logger.out "View.resize(#{@w}, #{@h})"
     @draw()
   draw: ->
+    # TODO: find out why this is called more than once on init
     Logger.out 'View.draw() was called.'
     data = @buffer.data.toString 'utf8'
     lines = data.split("\n")
     lines.pop() # discard last line erroneously appended by fs.read
-    gutter_size = Math.max 3, lines.length.toString().length + 1
-    gutter = repeat gutter_size, ' '
+    @gutter_width = Math.max 4, lines.length.toString().length + 2
+    gutter = repeat @gutter_width, ' '
     yy = Math.min lines.length, @h
     Logger.out "lines.length is #{lines.length}, yy is #{yy}"
     ln = 1
+    # TODO: fix last line shown always on bottom; overriding actual line
     if ln < lines.length
       for ln in [1..yy]
         line = lines[ln-1]
-        Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(@x+1,@y+ln).echo((gutter+ln).substr(gutter_size * -1)+' ')
+        Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(@x+1,@y+ln).echo((gutter+ln).substr((@gutter_width-1) * -1)+' ')
         clipped = line.length > @w
         if clipped
           line = line.substr(0, @w-1) + '>'
         Terminal.xbg(NviConfig.text_bg).xfg(NviConfig.text_fg).echo(line).clear_eol()
       Logger.out "now ln #{ln}, @h #{@h}"
-    if ln < @h
+    # TODO: fix tildes not being drawn on resize
+    if lines.length < @h
       for y in [ln..@h]
         Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(@x+1,@y+y).fg('bold').echo('~').fg('unbold')
-    Terminal.go(@x+gutter_size+2,@y+0).xfg(255)
+    Terminal.go(@x+@gutter_width+1,@y+0).xfg(255)

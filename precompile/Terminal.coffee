@@ -55,16 +55,16 @@ module.exports = class Terminal
   @screen:
     w: null
     h: null
-  @go: (x,y) ->
-    Terminal.cursor.x = x
-    Terminal.cursor.y = y
-    Terminal.esc Terminal.esc.POS x, y
-    #Logger.out "cursor now #{x}, #{y}"
+  @go: (x,y) -> # absolute
+    Terminal.cursor.x = x or 1
+    Terminal.cursor.y = y or 1
+    Terminal.esc Terminal.esc.POS Terminal.cursor.x, Terminal.cursor.y
+    #Logger.out "cursor now #{Terminal.cursor.x}, #{Terminal.cursor.y}"
     @
-  @move: (x, y=0) ->
+  @move: (x, y=0) -> # relative to current position
     dx = Terminal.cursor.x + x
     dy = Terminal.cursor.y + y
-    if dx > 4 and dx < Terminal.screen.w and dy > 0 and dy <= Terminal.screen.h
+    if dx >= 0 and dx <= Terminal.screen.w and dy >= 0 and dy <= Terminal.screen.h
       @go dx, dy
   @fg: (color) -> Terminal.esc Terminal.esc.color[color]; @
   @bg: (color) -> Terminal.esc Terminal.esc.color['bg_'+color]; @

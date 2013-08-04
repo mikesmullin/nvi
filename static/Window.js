@@ -44,26 +44,33 @@ module.exports = Window = (function() {
     _ref = Window.tabs;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       tab = _ref[_i];
-      tab.resize();
+      tab.resize({
+        w: Window.w,
+        h: Window.h
+      });
     }
     return Window.draw();
   };
 
   Window.keypress = function(ch, key) {
+    var cursor;
     Logger.out("caught keypress: " + JSON.stringify(arguments));
-    Window.active_tab.active_view.cursors[0];
-    if (key && key.ctrl && key.name === 'c') {
+    if (!key) {
+      return;
+    }
+    if (key.ctrl && key.name === 'c') {
       die('');
     }
+    cursor = Window.active_tab.active_view.cursors[0];
     switch (key.name) {
       case 'left':
-        return Terminal.move(-1);
+        return cursor.move(-1);
       case 'right':
-        return Terminal.move(1);
+        return cursor.move(1);
       case 'up':
-        return Terminal.move(0, -1);
+        return cursor.move(0, -1);
       case 'down':
-        return Terminal.move(0, 1);
+        return cursor.move(0, 1);
     }
   };
 

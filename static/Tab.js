@@ -23,12 +23,16 @@ module.exports = Tab = (function() {
     this.active_view = this.views[0];
   }
 
-  Tab.prototype.resize = function() {
+  Tab.prototype.resize = function(_arg) {
     var view, _i, _len, _ref;
+    this.w = _arg.w, this.h = _arg.h;
     _ref = this.views;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       view = _ref[_i];
-      view.resize();
+      view.resize({
+        w: this.w,
+        h: this.h
+      });
     }
     return this.draw();
   };

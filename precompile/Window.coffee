@@ -26,25 +26,30 @@ module.exports = class Window
     #       evaluate just once per ~500ms
     Logger.out "window caught resize #{process.stdout.columns}, #{process.stdout.rows}"
     Window._resize()
-    tab.resize() for tab in Window.tabs
+    tab.resize w: Window.w, h: Window.h for tab in Window.tabs
     Window.draw()
   @keypress: (ch, key) ->
     Logger.out "caught keypress: "+ JSON.stringify arguments
     # update screen position of my cursor in terminal
     # TODO: also record (and later broadcast) my cursor position
     #       within the HydraBuffer
-    Window.active_tab.active_view.cursors[0] # my_cursor
-    if key and key.ctrl and key.name is 'c'
-      die ''
+
+    # TODO: on keypress, constrain the cursor's movement to within the area of the view
+    # TODO: enforce active focus between views
+    # TODO: enforce layout and size between views
+
+    return unless key
+    die '' if key.ctrl and key.name is 'c'
+    cursor = Window.active_tab.active_view.cursors[0]
     switch key.name
       when 'left'
-        Terminal.move -1
+        cursor.move -1
       when 'right'
-        Terminal.move 1
+        cursor.move 1
       when 'up'
-        Terminal.move 0, -1
+        cursor.move 0, -1
       when 'down'
-        Terminal.move 0, 1
+        cursor.move 0, 1
   @mousepress: (e) ->
     Logger.out "caught mousepress: "+ JSON.stringify e
   @draw: ->

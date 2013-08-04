@@ -24,28 +24,31 @@ module.exports = View = (function() {
     this.y = o.y;
     this.w = o.w;
     this.h = o.h;
+    this.gutter_width = 4;
     this.offset = null;
   }
 
-  View.prototype.resize = function() {
+  View.prototype.resize = function(_arg) {
+    this.w = _arg.w, this.h = _arg.h;
+    Logger.out("View.resize(" + this.w + ", " + this.h + ")");
     return this.draw();
   };
 
   View.prototype.draw = function() {
-    var clipped, data, gutter, gutter_size, line, lines, ln, y, yy, _i, _j, _ref;
+    var clipped, data, gutter, line, lines, ln, y, yy, _i, _j, _ref;
     Logger.out('View.draw() was called.');
     data = this.buffer.data.toString('utf8');
     lines = data.split("\n");
     lines.pop();
-    gutter_size = Math.max(3, lines.length.toString().length + 1);
-    gutter = repeat(gutter_size, ' ');
+    this.gutter_width = Math.max(4, lines.length.toString().length + 2);
+    gutter = repeat(this.gutter_width, ' ');
     yy = Math.min(lines.length, this.h);
     Logger.out("lines.length is " + lines.length + ", yy is " + yy);
     ln = 1;
     if (ln < lines.length) {
       for (ln = _i = 1; 1 <= yy ? _i <= yy : _i >= yy; ln = 1 <= yy ? ++_i : --_i) {
         line = lines[ln - 1];
-        Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(this.x + 1, this.y + ln).echo((gutter + ln).substr(gutter_size * -1) + ' ');
+        Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(this.x + 1, this.y + ln).echo((gutter + ln).substr((this.gutter_width - 1) * -1) + ' ');
         clipped = line.length > this.w;
         if (clipped) {
           line = line.substr(0, this.w - 1) + '>';
@@ -54,12 +57,12 @@ module.exports = View = (function() {
       }
       Logger.out("now ln " + ln + ", @h " + this.h);
     }
-    if (ln < this.h) {
+    if (lines.length < this.h) {
       for (y = _j = ln, _ref = this.h; ln <= _ref ? _j <= _ref : _j >= _ref; y = ln <= _ref ? ++_j : --_j) {
         Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(this.x + 1, this.y + y).fg('bold').echo('~').fg('unbold');
       }
     }
-    return Terminal.go(this.x + gutter_size + 2, this.y + 0).xfg(255);
+    return Terminal.go(this.x + this.gutter_width + 1, this.y + 0).xfg(255);
   };
 
   return View;

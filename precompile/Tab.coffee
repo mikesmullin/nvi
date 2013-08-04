@@ -9,8 +9,8 @@ module.exports = class Tab
     @h = o.h
     @views = [new View tab: @, file: o?.file, x: 0, y: 0, w: @w, h: @h] # can never have fewer than one view
     @active_view = @views[0]
-  resize: ->
-    view.resize() for view in @views
+  resize: ({@w, @h}) ->
+    view.resize w: @w, h: @h for view in @views
     @draw()
   draw: ->
     # if draw_tab_bar
