@@ -56,6 +56,8 @@ module.exports = class Terminal
     w: null
     h: null
   @go: (x,y) -> # absolute
+    # TODO: throw "zero is an invalid value to go()" if x is 0 or y is 0
+    # TODO: also add the throw to the Cursor.go()
     Terminal.cursor.x = x or 1
     Terminal.cursor.y = y or 1
     Terminal.esc Terminal.esc.POS Terminal.cursor.x, Terminal.cursor.y

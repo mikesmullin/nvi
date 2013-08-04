@@ -21,9 +21,12 @@ module.exports = class HydraBuffer
     if o.file isnt undefined # we're expected to open a file on disk
       # absolute filename path on disk becomes buffer unique identifier
       # TODO: maybe fs.realpath() is useful here to resolve past symlinks?
-      buffer = type: 'file', id: path.resolve o.file
+      buffer =
+        type: 'file'
+        id: path.resolve o.file
+        alias: path.basename o.file
     else
-      buffer = type: 'memory', id: null
+      buffer = type: 'memory', id: null, alias: 'untitled'
 
     # decide whether or not this is a unique request
     if buffer.id is null or HydraBuffer.buffers[buffer.id] is undefined
@@ -36,8 +39,8 @@ module.exports = class HydraBuffer
 
     switch buffer.type
       when 'file'
-        buffer.data = fs.readFileSync buffer.id
+        buffer.data = fs.readFileSync buffer.id, encoding: 'utf8'
       when 'memory'
-        buffer.data = new Buffer 0
+        buffer.data = ''
 
     return buffer

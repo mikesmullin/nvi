@@ -14,7 +14,7 @@ module.exports = Cursor = (function() {
   Cursor.prototype.go = function(x, y) {
     this.x = x || 1;
     this.y = y || 1;
-    Terminal.go(this.view.x + this.view.gutter_width + this.x, this.view.y + this.y);
+    Terminal.go(this.view.x + this.view.gutter.length + this.x, this.view.y + this.y);
     return Logger.out("cursor now " + this.x + ", " + this.y);
   };
 
@@ -24,11 +24,11 @@ module.exports = Cursor = (function() {
       y = 0;
     }
     Logger.out("called cursor.move() " + x + ", " + y);
-    Logger.out("view.w " + this.view.w + ", view.h " + this.view.h + ", view.gutter_width " + this.view.gutter_width);
+    Logger.out("view.w " + this.view.w + ", view.h " + this.view.h + ", view.gutter.length " + this.view.gutter.length);
     dx = this.x + x;
     dy = this.y + y;
     Logger.out("dx " + dx + ", dy " + dy);
-    if (dx >= 0 && dx <= this.view.w - this.view.gutter_width && dy >= 0 && dy <= this.view.h) {
+    if (dx >= 0 && dx <= this.view.w - this.view.gutter.length && dy >= 0 && dy <= this.view.h) {
       return this.go(dx, dy);
     }
   };

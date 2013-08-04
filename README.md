@@ -329,3 +329,14 @@ so i'll just use buffers for now
 and always assume that the file will fit in memory
 and that transmitting a file-at-a-time from host to client is fast enough
 
+
+add funny -- COMBO X10! --
+counter to the statusbar as each combo is executed within a 1 sec delay
+
+
+there's a view statusbar
+and a window statusbar
+the window statusbar is always visible
+really they both are
+i guess the view one gets added by a plugin for gvim
+but mine will be there in core

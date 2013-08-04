@@ -7,46 +7,42 @@ Cursor = require('./Cursor');
 
 module.exports = Tab = (function() {
   function Tab(o) {
-    this.name = (o != null ? o.name : void 0) || 'untitled';
+    this.name = o.name || 'untitled';
     this.w = o.w;
     this.h = o.h;
+    if (o.active) {
+      Window.active_tab = this;
+    }
     this.views = [
       new View({
         tab: this,
-        file: o != null ? o.file : void 0,
+        file: o.file,
         x: 0,
         y: 0,
         w: this.w,
-        h: this.h
+        h: this.h,
+        active: o.active
       })
     ];
-    this.active_view = this.views[0];
   }
 
   Tab.prototype.resize = function(_arg) {
-    var view, _i, _len, _ref;
-    this.w = _arg.w, this.h = _arg.h;
-    _ref = this.views;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      view = _ref[_i];
-      view.resize({
-        w: this.w,
-        h: this.h
-      });
-    }
-    return this.draw();
-  };
-
-  Tab.prototype.draw = function() {
     var view, _i, _len, _ref, _results;
+    this.w = _arg.w, this.h = _arg.h;
+    this.draw();
     _ref = this.views;
     _results = [];
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       view = _ref[_i];
-      _results.push(view.draw());
+      _results.push(view.resize({
+        w: this.w,
+        h: this.h
+      }));
     }
     return _results;
   };
+
+  Tab.prototype.draw = function() {};
 
   return Tab;
 
