@@ -116,9 +116,22 @@ module.exports = Terminal = (function() {
   };
 
   Terminal.go = function(x, y) {
-    Terminal.cursor.x = x || 1;
-    Terminal.cursor.y = y || 1;
+    if (x < 1) {
+      die("Terminal.cursor.x " + x + " may not be less than one!");
+    }
+    if (x > Terminal.screen.w) {
+      die("Terminal.cursor.x " + x + " may not be greater than Terminal.screen.w or " + Terminal.screen.w + "!");
+    }
+    Terminal.cursor.x = x;
+    if (y < 1) {
+      die("Terminal.cursor.y " + y + " may not be less than one!");
+    }
+    if (y > Terminal.screen.h) {
+      die("Terminal.cursor.y " + y + " may not be greater than Terminal.screen.h or " + Terminal.screen.h + "!");
+    }
+    Terminal.cursor.y = y;
     Terminal.esc(Terminal.esc.POS(Terminal.cursor.x, Terminal.cursor.y));
+    Logger.out("Terminal.cursor = x: " + Terminal.cursor.x + ", y: " + Terminal.cursor.y);
     return this;
   };
 
@@ -157,16 +170,28 @@ module.exports = Terminal = (function() {
   Terminal.clear_screen = function() {
     var y, _i, _ref;
     Terminal.go(1, 1).clear();
-    for (y = _i = 0, _ref = Terminal.screen.h; 0 <= _ref ? _i <= _ref : _i >= _ref; y = 0 <= _ref ? ++_i : --_i) {
+    for (y = _i = 1, _ref = Terminal.screen.h; 1 <= _ref ? _i <= _ref : _i >= _ref; y = 1 <= _ref ? ++_i : --_i) {
       Terminal.clear_eol();
     }
     Terminal.go(1, 1);
     return this;
   };
 
-  Terminal.clear_eol = function() {
-    Terminal.echo(repeat(Terminal.screen.w - Terminal.cursor.x, ' '));
+  Terminal.clear_n = function(n) {
+    Terminal.echo(repeat(n, ' '));
     return this;
+  };
+
+  Terminal.clear_eol = function() {
+    return Terminal.clear_n(Terminal.screen.w - Terminal.cursor.x);
+  };
+
+  Terminal.clear_space = function(o) {
+    var y, _i, _ref, _ref1;
+    for (y = _i = _ref = o.y, _ref1 = o.y + o.h; _ref <= _ref1 ? _i < _ref1 : _i > _ref1; y = _ref <= _ref1 ? ++_i : --_i) {
+      Terminal.xbg(o.bg).go(o.x, y).clear_n(o.w);
+    }
+    return Terminal.go(o.x, o.y).xbg(o.bg).xfg(o.fg);
   };
 
   return Terminal;

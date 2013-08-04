@@ -11,12 +11,9 @@ module.exports = class View
   constructor: (o) ->
     @tab = o.tab
     @tab.active_view = @ if o.active
-    @x = o.x
-    @y = o.y
-    @w = o.w
-    @h = o.h
+    @resize x: o.x, y: o.y, w: o.w, h: o.h, dont_draw: true
     # although there can be many cursors in a single view
-    @cursors = [new Cursor user: Window.current_user, view: @, x: 0, y: 0] # cursor 0 is always my_cursor
+    @cursors = [new Cursor user: Window.current_user, view: @, x: 1, y: 1] # cursor 0 is always my_cursor
     # or the one that is controlled by the current_user
     # the rest of the cursors belong to other views/users of the same file
     @buffer = HydraBuffer view: @, file: o.file # will instantiate itself if needed
@@ -24,29 +21,39 @@ module.exports = class View
     # but let HydraBuffer track and decide on this internally
     @lines = @buffer.data.split("\n")
     @lines.pop() # discard last line erroneously appended by fs.read
+    @lines = [''] unless @lines.length >= 1 # may never have less than one line
     @gutter = repeat (Math.max 3, @lines.length.toString().length + 2), ' '
     @draw()
     Window.set_status "\"#{@buffer.alias}\", #{@lines.length}L, #{@buffer.data.length}C"
-  resize: ({@w, @h}) ->
-    Logger.out "View.resize(#{@w}, #{@h})"
-    @draw()
-  draw: ->
-    Logger.out 'View.draw() was called.'
-    yy = Math.min @lines.length, @h
-    Logger.out "@lines.length is #{@lines.length}, yy is #{yy}"
-    ln = 1
-    # TODO: fix last line shown always on bottom; overriding actual line
-    if ln < @lines.length
-      for ln in [1..yy]
-        line = @lines[ln-1]
-        Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(@x+1,@y+ln).echo((@gutter+ln).substr((@gutter.length-1) * -1)+' ')
-        clipped = line.length > @w
-        if clipped
-          line = line.substr(0, @w-1) + '>'
-        Terminal.xbg(NviConfig.text_bg).xfg(NviConfig.text_fg).echo(line).clear_eol()
-      Logger.out "now ln #{ln}, @h #{@h}"
+  resize: (o) ->
+    Logger.out "View.resize(#{JSON.stringify o})"
+    @x = o.x
+    die "View.x may not be less than 1!" if @x < 1
+    @y = o.y
+    die "View.y may not be less than 1!" if @y < 1
+    @w = o.w
+    die "View.w may not be less than 1!" if @w < 1
+    # outer height
+    @h = o.h; die "View.h may not be less than 2!" if @h < 2
+    # inner height (after decorators like status bar)
+    @ih = o.h - 1
+    @draw() unless o.dont_draw
     # TODO: fix tildes not being drawn on resize
-    if @lines.length < @h
-      for y in [ln..@h]
-        Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(@x+1,@y+y).fg('bold').echo('~').fg('unbold')
-    Terminal.go(@x+@gutter.length+1,@y+0).xfg(255)
+  draw_status_bar: ->
+    x = @x; y = @y + @h; w = @w; h = 1
+    Terminal.clear_space x: x, y: y, w: w, h: h, fg: 255, bg: 196
+    Terminal.echo "view status bar"
+  draw: ->
+    # TODO: fix last line shown always on bottom; overriding actual line
+    Logger.out 'View.draw() was called.'
+    @draw_status_bar()
+    yy = Math.min @lines.length, @ih-1 # zero-based
+    for ln in [0...yy]
+      line = @lines[ln]
+      Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(@x,@y+ln).echo((@gutter+(ln+1)).substr((@gutter.length-1) * -1)+' ')
+      line = line.substr(0, @w-1) + '>' if line.length > @w
+      Terminal.xbg(NviConfig.text_bg).xfg(NviConfig.text_fg).echo(line).clear_eol()
+    if yy < @ih-1
+      for y in [yy...@ih]
+        Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(@x,@y+y).fg('bold').echo('~').fg('unbold')
+    Terminal.go(@x+@gutter.length,@y).xfg(255) # return cursor to 0, 0 of view

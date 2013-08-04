@@ -56,12 +56,14 @@ module.exports = class Terminal
     w: null
     h: null
   @go: (x,y) -> # absolute
-    # TODO: throw "zero is an invalid value to go()" if x is 0 or y is 0
-    # TODO: also add the throw to the Cursor.go()
-    Terminal.cursor.x = x or 1
-    Terminal.cursor.y = y or 1
+    die "Terminal.cursor.x #{x} may not be less than one!" if x < 1
+    die "Terminal.cursor.x #{x} may not be greater than Terminal.screen.w or #{Terminal.screen.w}!" if x > Terminal.screen.w
+    Terminal.cursor.x = x
+    die "Terminal.cursor.y #{y} may not be less than one!" if y < 1
+    die "Terminal.cursor.y #{y} may not be greater than Terminal.screen.h or #{Terminal.screen.h}!" if y > Terminal.screen.h
+    Terminal.cursor.y = y
     Terminal.esc Terminal.esc.POS Terminal.cursor.x, Terminal.cursor.y
-    #Logger.out "cursor now #{Terminal.cursor.x}, #{Terminal.cursor.y}"
+    Logger.out "Terminal.cursor = x: #{Terminal.cursor.x}, y: #{Terminal.cursor.y}"
     @
   @move: (x, y=0) -> # relative to current position
     dx = Terminal.cursor.x + x
@@ -79,9 +81,21 @@ module.exports = class Terminal
   # TODO: find out how vim is working normally/smoothly in tmux
   @clear_screen = ->
     Terminal.go(1,1).clear()
-    for y in [0..Terminal.screen.h]
+    for y in [1..Terminal.screen.h]
       #Terminal.go(1,y)
       Terminal.clear_eol()
     Terminal.go 1, 1; @
+  @clear_n = (n) ->
+    Terminal.echo repeat n, ' '; @
   @clear_eol = ->
-    Terminal.echo repeat Terminal.screen.w - Terminal.cursor.x, ' '; @
+    Terminal.clear_n Terminal.screen.w - Terminal.cursor.x
+  @clear_space = (o) ->
+    # blank out a rectangle with given bg color
+    for y in [o.y...o.y+o.h]
+      Terminal.xbg(o.bg).go(o.x, y).clear_n(o.w)
+    # set cursor to relative 0,0 of freshly blanked space
+    # with given fg color preset
+    Terminal.go(o.x, o.y).xbg(o.bg).xfg(o.fg)
+
+
+

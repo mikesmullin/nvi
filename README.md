@@ -346,3 +346,18 @@ COMBO mode (what i call the vi NORMAL mode)
 
 
 
+
+make it so all @w and @h are the outer dims
+and any decorators like tabs, statusbars, etc. must fit inside that
+and relative to their parent dims who controls them
+
+
+instead of doing a layered TUI that redraws layers ontop of layers
+if i need to get more efficient
+i could make a pixel/char registry which is basically a matrix of function pointers
+the first cell points to a function that controls its appearance
+and subsequent cells point back to the id of the first cell of which they also belong
+then i just loop through the cells to determine which functions need to execute to redraw
+the screen
+
+

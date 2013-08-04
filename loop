@@ -1,0 +1,33 @@
+#!/bin/bash
+# Process Loop
+# Author: Mike Smullin <mike@smullindesign.com>
+# License: MIT
+# Usage:
+#
+#   ./loop node debug app.js
+#
+#   Ctrl+C Restarts
+#   Ctrl+\ Quits
+#
+
+ctrl_c() {
+  echo -en "\n\n*** Restarting ***\n\n"
+}
+
+ctrl_backslash() {
+  echo -en "\n\n*** Killing ***\n\n"
+  exit 0
+}
+
+# trap keyboard interrupt (control-c)
+trap ctrl_c SIGINT
+trap ctrl_backslash SIGQUIT
+
+# the loop
+#while true; do $*; done
+while true; do
+  reset;
+  npm test && \
+  bin/nvi;
+  cat # pause to read output
+done

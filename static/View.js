@@ -11,16 +11,19 @@ module.exports = View = (function() {
     if (o.active) {
       this.tab.active_view = this;
     }
-    this.x = o.x;
-    this.y = o.y;
-    this.w = o.w;
-    this.h = o.h;
+    this.resize({
+      x: o.x,
+      y: o.y,
+      w: o.w,
+      h: o.h,
+      dont_draw: true
+    });
     this.cursors = [
       new Cursor({
         user: Window.current_user,
         view: this,
-        x: 0,
-        y: 0
+        x: 1,
+        y: 1
       })
     ];
     this.buffer = HydraBuffer({
@@ -29,41 +32,77 @@ module.exports = View = (function() {
     });
     this.lines = this.buffer.data.split("\n");
     this.lines.pop();
+    if (!(this.lines.length >= 1)) {
+      this.lines = [''];
+    }
     this.gutter = repeat(Math.max(3, this.lines.length.toString().length + 2), ' ');
     this.draw();
     Window.set_status("\"" + this.buffer.alias + "\", " + this.lines.length + "L, " + this.buffer.data.length + "C");
   }
 
-  View.prototype.resize = function(_arg) {
-    this.w = _arg.w, this.h = _arg.h;
-    Logger.out("View.resize(" + this.w + ", " + this.h + ")");
-    return this.draw();
+  View.prototype.resize = function(o) {
+    Logger.out("View.resize(" + (JSON.stringify(o)) + ")");
+    this.x = o.x;
+    if (this.x < 1) {
+      die("View.x may not be less than 1!");
+    }
+    this.y = o.y;
+    if (this.y < 1) {
+      die("View.y may not be less than 1!");
+    }
+    this.w = o.w;
+    if (this.w < 1) {
+      die("View.w may not be less than 1!");
+    }
+    this.h = o.h;
+    if (this.h < 2) {
+      die("View.h may not be less than 2!");
+    }
+    this.ih = o.h - 1;
+    if (!o.dont_draw) {
+      return this.draw();
+    }
+  };
+
+  View.prototype.draw_status_bar = function() {
+    var h, w, x, y;
+    x = this.x;
+    y = this.y + this.h;
+    w = this.w;
+    h = 1;
+    Terminal.clear_space({
+      x: x,
+      y: y,
+      w: w,
+      h: h,
+      fg: 255,
+      bg: 196
+    });
+    return Terminal.echo("view status bar");
   };
 
   View.prototype.draw = function() {
-    var clipped, line, ln, y, yy, _i, _j, _ref;
+    var line, ln, y, yy, _i, _j, _ref;
     Logger.out('View.draw() was called.');
-    yy = Math.min(this.lines.length, this.h);
-    Logger.out("@lines.length is " + this.lines.length + ", yy is " + yy);
-    ln = 1;
+    this.draw_status_bar();
+    yy = Math.min(this.lines.length, this.ih);
+    ln = 0;
     if (ln < this.lines.length) {
-      for (ln = _i = 1; 1 <= yy ? _i <= yy : _i >= yy; ln = 1 <= yy ? ++_i : --_i) {
-        line = this.lines[ln - 1];
-        Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(this.x + 1, this.y + ln).echo((this.gutter + ln).substr((this.gutter.length - 1) * -1) + ' ');
-        clipped = line.length > this.w;
-        if (clipped) {
+      for (ln = _i = 0; 0 <= yy ? _i < yy : _i > yy; ln = 0 <= yy ? ++_i : --_i) {
+        line = this.lines[ln];
+        Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(this.x, this.y + ln).echo((this.gutter + (ln + 1)).substr((this.gutter.length - 1) * -1) + ' ');
+        if (line.length > this.w) {
           line = line.substr(0, this.w - 1) + '>';
         }
         Terminal.xbg(NviConfig.text_bg).xfg(NviConfig.text_fg).echo(line).clear_eol();
       }
-      Logger.out("now ln " + ln + ", @h " + this.h);
     }
-    if (this.lines.length < this.h) {
-      for (y = _j = ln, _ref = this.h; ln <= _ref ? _j <= _ref : _j >= _ref; y = ln <= _ref ? ++_j : --_j) {
-        Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(this.x + 1, this.y + y).fg('bold').echo('~').fg('unbold');
+    if (ln < this.ih) {
+      for (y = _j = ln, _ref = this.ih; ln <= _ref ? _j < _ref : _j > _ref; y = ln <= _ref ? ++_j : --_j) {
+        Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(this.x, this.y + y).fg('bold').echo('~').fg('unbold');
       }
     }
-    return Terminal.go(this.x + this.gutter.length + 1, this.y + 0).xfg(255);
+    return Terminal.go(this.x + this.gutter.length, this.y + 0).xfg(255);
   };
 
   return View;

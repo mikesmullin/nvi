@@ -1,2 +1,4 @@
 #!/usr/bin/env sh
-node static/main.js $*
+slnode debug -s static/main.js $*
+#slnode debug static/main.js $*
+#node static/main.js $*

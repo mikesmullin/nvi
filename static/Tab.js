@@ -8,38 +8,50 @@ Cursor = require('./Cursor');
 module.exports = Tab = (function() {
   function Tab(o) {
     this.name = o.name || 'untitled';
-    this.w = o.w;
-    this.h = o.h;
     if (o.active) {
       Window.active_tab = this;
     }
+    this.resize({
+      w: o.w,
+      h: o.h
+    });
     this.views = [
       new View({
         tab: this,
         file: o.file,
-        x: 0,
-        y: 0,
+        x: 1,
+        y: 1,
         w: this.w,
-        h: this.h,
+        h: this.ih,
         active: o.active
       })
     ];
   }
 
-  Tab.prototype.resize = function(_arg) {
+  Tab.prototype.resize = function(o) {
     var view, _i, _len, _ref, _results;
-    this.w = _arg.w, this.h = _arg.h;
-    this.draw();
-    _ref = this.views;
-    _results = [];
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      view = _ref[_i];
-      _results.push(view.resize({
-        w: this.w,
-        h: this.h
-      }));
+    this.w = o.w;
+    if (this.w < 1) {
+      die("Tab.w may not be less than 1!");
     }
-    return _results;
+    this.h = o.h;
+    if (this.h < 1) {
+      die("Tab.h may not be less than 1!");
+    }
+    this.ih = o.h;
+    this.draw();
+    if (this.views) {
+      _ref = this.views;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        view = _ref[_i];
+        _results.push(view.resize({
+          w: this.w,
+          h: this.ih
+        }));
+      }
+      return _results;
+    }
   };
 
   Tab.prototype.draw = function() {};

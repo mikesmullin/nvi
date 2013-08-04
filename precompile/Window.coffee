@@ -15,26 +15,28 @@ module.exports = class Window
   @init: (o) ->
     Window.current_user = o.current_user
     Window.tabs = []
-    Window._resize()
-    Window.draw()
-    Window.tabs = [new Tab file: o?.file, x: 0, y: 0, w: Window.w, h: Window.h, active: true] # can never have fewer than one tab
+    Window.resize()
+    Window.tabs = [new Tab file: o?.file, x: 1, y: 1, w: Window.w, h: Window.ih, active: true] # can never have fewer than one tab
     # COMBO, NORMAL, REPLACE, BLOCK, LINE-BLOCK, COMMAND
     Window.mode = 'COMBO'
     Window.command_line = ''
     Window.command_history = []
     Window.command_history_position = 0
-  @_resize: ->
+  @resize: ->
+    Logger.out "window caught resize #{process.stdout.columns}, #{process.stdout.rows}"
     Terminal.screen.w = process.stdout.columns
     Terminal.screen.h = process.stdout.rows
-    Window.h = Terminal.screen.h - 1 # make room for status bar
+    #Window.x = 0 # can be safely assumed
+    #Window.y = 0
     Window.w = Terminal.screen.w
-  @resize: ->
-    # TODO: throttle event because it does happen rapidly
-    #       evaluate just once per ~500ms
-    Logger.out "window caught resize #{process.stdout.columns}, #{process.stdout.rows}"
-    Window._resize()
+    die "Window.w may not be less than 1!" if Window.w < 1
+    # outer height
+    Window.h = Terminal.screen.h
+    die "Window.h may not be less than 3!" if Window.h < 3
+    # inner height (after decorators like status bar)
+    Window.ih = Window.h - 1
     Window.draw()
-    tab.resize w: Window.w, h: Window.h for tab in Window.tabs
+    tab.resize w: Window.w, h: Window.ih for tab in Window.tabs
   @draw: ->
     Terminal.xbg(NviConfig.gutter_bg).clear_screen()
     Window.clear_status_bar()
@@ -89,13 +91,13 @@ module.exports = class Window
         when ':'
           Window.mode = 'COMMAND'
           Window.clear_status_bar()
-          Window.move_to_status_bar()
           Terminal.echo(':')
           return
 
     if ch is "\u0003" # Ctrl-c
       Window.set_status 'Type :quit<Enter> to exit Nvi'
-      return
+      die '' # for convenience while debugging
+      #return
 
     if (Window.mode is 'NORMAL' or Window.mode is 'COMBO') and key
       switch key.name
@@ -124,7 +126,6 @@ module.exports = class Window
   @change_mode: (mode) ->
     Window.mode = mode
     Window.clear_status_bar()
-    Window.move_to_status_bar()
     # TODO: make it so i can pass color codes to Window.set_status()
     Terminal.xfg(NviConfig.mode_fg).fg('bold').echo("-- #{Window.mode} MODE --").fg('unbold').xfg(NviConfig.status_bar_fg).clear_eol()
     Window.current_cursor().move 0 # return cursor to last position
@@ -132,10 +133,7 @@ module.exports = class Window
     Window.active_tab?.active_view?.cursors?[0]
   @set_status: (s) ->
     Window.clear_status_bar()
-    Window.move_to_status_bar()
-    Terminal.echo(s.substr(0, Terminal.screen.w)).clear_eol()
+    Terminal.echo(s.substr(0, Window.w)).clear_eol()
     Window.current_cursor().move 0 # return cursor to last position
   @clear_status_bar: ->
-    Terminal.xbg(NviConfig.status_bar_bg).go(1, Terminal.screen.h).clear_eol()
-  @move_to_status_bar: ->
-    Terminal.go(1, Terminal.screen.h).xbg(NviConfig.status_bar_bg).xfg(NviConfig.status_bar_fg)
+    Terminal.clear_space bg: NviConfig.status_bar_bg, fg: NviConfig.status_bar_fg, x: 1, y: Window.h, w: Window.w, h: 1

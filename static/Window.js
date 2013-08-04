@@ -19,15 +19,14 @@ module.exports = Window = (function() {
   Window.init = function(o) {
     Window.current_user = o.current_user;
     Window.tabs = [];
-    Window._resize();
-    Window.draw();
+    Window.resize();
     Window.tabs = [
       new Tab({
         file: o != null ? o.file : void 0,
-        x: 0,
-        y: 0,
+        x: 1,
+        y: 1,
         w: Window.w,
-        h: Window.h,
+        h: Window.ih,
         active: true
       })
     ];
@@ -37,17 +36,20 @@ module.exports = Window = (function() {
     return Window.command_history_position = 0;
   };
 
-  Window._resize = function() {
-    Terminal.screen.w = process.stdout.columns;
-    Terminal.screen.h = process.stdout.rows;
-    Window.h = Terminal.screen.h - 1;
-    return Window.w = Terminal.screen.w;
-  };
-
   Window.resize = function() {
     var tab, _i, _len, _ref, _results;
     Logger.out("window caught resize " + process.stdout.columns + ", " + process.stdout.rows);
-    Window._resize();
+    Terminal.screen.w = process.stdout.columns;
+    Terminal.screen.h = process.stdout.rows;
+    Window.w = Terminal.screen.w;
+    if (Window.w < 1) {
+      die("Window.w may not be less than 1!");
+    }
+    Window.h = Terminal.screen.h;
+    if (Window.h < 3) {
+      die("Window.h may not be less than 3!");
+    }
+    Window.ih = Window.h - 1;
     Window.draw();
     _ref = Window.tabs;
     _results = [];
@@ -55,7 +57,7 @@ module.exports = Window = (function() {
       tab = _ref[_i];
       _results.push(tab.resize({
         w: Window.w,
-        h: Window.h
+        h: Window.ih
       }));
     }
     return _results;
@@ -118,14 +120,13 @@ module.exports = Window = (function() {
         case ':':
           Window.mode = 'COMMAND';
           Window.clear_status_bar();
-          Window.move_to_status_bar();
           Terminal.echo(':');
           return;
       }
     }
     if (ch === "\u0003") {
       Window.set_status('Type :quit<Enter> to exit Nvi');
-      return;
+      die('');
     }
     if ((Window.mode === 'NORMAL' || Window.mode === 'COMBO') && key) {
       switch (key.name) {
@@ -163,7 +164,6 @@ module.exports = Window = (function() {
   Window.change_mode = function(mode) {
     Window.mode = mode;
     Window.clear_status_bar();
-    Window.move_to_status_bar();
     Terminal.xfg(NviConfig.mode_fg).fg('bold').echo("-- " + Window.mode + " MODE --").fg('unbold').xfg(NviConfig.status_bar_fg).clear_eol();
     return Window.current_cursor().move(0);
   };
@@ -175,17 +175,19 @@ module.exports = Window = (function() {
 
   Window.set_status = function(s) {
     Window.clear_status_bar();
-    Window.move_to_status_bar();
-    Terminal.echo(s.substr(0, Terminal.screen.w)).clear_eol();
+    Terminal.echo(s.substr(0, Window.w)).clear_eol();
     return Window.current_cursor().move(0);
   };
 
   Window.clear_status_bar = function() {
-    return Terminal.xbg(NviConfig.status_bar_bg).go(1, Terminal.screen.h).clear_eol();
-  };
-
-  Window.move_to_status_bar = function() {
-    return Terminal.go(1, Terminal.screen.h).xbg(NviConfig.status_bar_bg).xfg(NviConfig.status_bar_fg);
+    return Terminal.clear_space({
+      bg: NviConfig.status_bar_bg,
+      fg: NviConfig.status_bar_fg,
+      x: 1,
+      y: Window.h,
+      w: Window.w,
+      h: 1
+    });
   };
 
   return Window;

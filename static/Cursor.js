@@ -5,17 +5,38 @@ module.exports = Cursor = (function() {
   function Cursor(o) {
     this.user = o.user;
     this.view = o.view;
-    this.x = o.x || 1;
-    this.y = o.x || 1;
-    this.w = 1;
-    this.h = 1;
+    this.resize({
+      x: o.x,
+      y: o.y,
+      w: o.w,
+      h: o.h
+    });
   }
 
+  Cursor.prototype.resize = function(o) {
+    this.x = o.x;
+    if (this.x < 1) {
+      die("Cursor.x may not be less than 1!");
+    }
+    this.y = o.x;
+    if (this.y < 1) {
+      die("Cursor.y may not be less than 1!");
+    }
+    this.w = 1;
+    if (this.w < 1) {
+      die("Cursor.w may not be less than 1!");
+    }
+    this.h = 1;
+    if (this.h < 1) {
+      return die("Cursor.h may not be less than 1!");
+    }
+  };
+
   Cursor.prototype.go = function(x, y) {
-    this.x = x || 1;
-    this.y = y || 1;
-    Terminal.go(this.view.x + this.view.gutter.length + this.x, this.view.y + this.y);
-    return Logger.out("cursor now " + this.x + ", " + this.y);
+    this.x = x;
+    this.y = y;
+    Logger.out("View.cursor = x: " + this.x + ", y: " + this.y);
+    return Terminal.go(this.view.x - 1 + this.view.gutter.length + this.x - 1, this.view.y + this.y - 1);
   };
 
   Cursor.prototype.move = function(x, y) {
@@ -23,15 +44,14 @@ module.exports = Cursor = (function() {
     if (y == null) {
       y = 0;
     }
-    Logger.out("called cursor.move() " + x + ", " + y);
-    Logger.out("view.w " + this.view.w + ", view.h " + this.view.h + ", view.gutter.length " + this.view.gutter.length);
     dx = this.x + x;
     dy = this.y + y;
-    Logger.out("dx " + dx + ", dy " + dy);
-    if (dx >= 0 && dx <= this.view.w - this.view.gutter.length && dy >= 0 && dy <= this.view.h) {
+    if (dx >= 1 && dx <= this.view.w - this.view.gutter.length && dy >= 1 && dy <= this.view.ih) {
       return this.go(dx, dy);
     }
   };
+
+  Cursor.prototype.draw = function() {};
 
   return Cursor;
 

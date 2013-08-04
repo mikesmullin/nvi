@@ -1,15 +1,33 @@
+# TODO: move these all out of the global namespace
+#       pass them via instantiation like teacup
+#       and move utility functions into something like Underscore _
 global.NviConfig = require '../config.json'
 global.Logger = require './Logger'
 global.Terminal = require './Terminal'
 global.delay = (s,f) -> setTimeout f, s
 global.interval = (s,f) -> setInterval f, s
 global.repeat = (n,s) -> o = ''; o += s for i in [0..n]; o
+#global._throttles = {}
+#global.throttle = (ms, k, f) -> ->
+#  return if _throttles[k]
+#  _throttles[k] = true
+#  delay ms, -> delete _throttles[k]
+#  f.apply null, arguments
+
+cleaned_up = false
+cleanup = ->
+  return if cleaned_up
+  process.stdin.pause() # stop waiting for input
+  Terminal.fg('reset').clear().go 1, 1
+  cleaned_up = true
+process.on 'exit', cleanup
 global.die = (err) ->
-  process.stdin.resume() # stop waiting for input
-  Terminal.fg('reset').clear().go(1,1)
+  cleanup()
   if err
-    process.stderr.write err+"\n\n" # output the error
+    console.trace()
+    process.stderr.write "\n"+err+"\n\n" # output the error
     process.exit 1 # exit with non-zero error code
+  process.stdout.write "see you soon!\n"
   process.exit 0
   # TODO: how does vim cleanup the scrollback buffer too?
 die 'must be in a tty' unless process.stdout.isTTY
