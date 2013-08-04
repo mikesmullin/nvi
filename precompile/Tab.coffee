@@ -5,7 +5,9 @@ module.exports = class Tab
 # has many views
   constructor: (o) ->
     @name = o?.name or 'untitled'
-    @views = [new View tab: @] # can never have fewer than one view
+    @w = o.w
+    @h = o.h
+    @views = [new View tab: @, file: o?.file, x: 0, y: 0, w: @w, h: @h] # can never have fewer than one view
     @active_view = @views[0]
   resize: ->
     view.resize() for view in @views

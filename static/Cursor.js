@@ -2,9 +2,9 @@
 var Cursor;
 
 module.exports = Cursor = (function() {
-  function Cursor() {
-    this.user = new User;
-    this.view = View;
+  function Cursor(o) {
+    this.user = o.user;
+    this.view = o.view;
     this.x = null;
     this.y = null;
     this.w = 1;

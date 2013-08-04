@@ -12,17 +12,20 @@ module.exports = class Window
 # has one or more tabs
   @init: (o) ->
     Window.current_user = o.current_user
-    Window.tabs = [new Tab] # can never have fewer than one tab
+    Window._resize()
+    Window.tabs = [new Tab file: o?.file, x: 0, y: 0, w: Window.w, h: Window.h] # can never have fewer than one tab
     Window.active_tab = Window.tabs[0]
-    Window.h = null # space available for tabs
     Window.resize()
+  @_resize: ->
+    Terminal.screen.w = process.stdout.columns
+    Terminal.screen.h = process.stdout.rows
+    Window.h = Terminal.screen.h # TODO: can be reduced -1 to make room for tab bar
+    Window.w = Terminal.screen.w
   @resize: ->
     # TODO: throttle event because it does happen rapidly
     #       evaluate just once per ~500ms
     Logger.out "window caught resize #{process.stdout.columns}, #{process.stdout.rows}"
-    Terminal.screen.w = process.stdout.columns
-    Terminal.screen.h = process.stdout.rows
-    Window.h = process.stdout.rows # TODO: can be reduced to make room for tab bar
+    Window._resize()
     tab.resize() for tab in Window.tabs
     Window.draw()
   @keypress: (ch, key) ->

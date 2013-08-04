@@ -16,17 +16,31 @@ module.exports = Window = (function() {
 
   Window.init = function(o) {
     Window.current_user = o.current_user;
-    Window.tabs = [new Tab];
-    Window.h = null;
+    Window._resize();
+    Window.tabs = [
+      new Tab({
+        file: o != null ? o.file : void 0,
+        x: 0,
+        y: 0,
+        w: Window.w,
+        h: Window.h
+      })
+    ];
+    Window.active_tab = Window.tabs[0];
     return Window.resize();
+  };
+
+  Window._resize = function() {
+    Terminal.screen.w = process.stdout.columns;
+    Terminal.screen.h = process.stdout.rows;
+    Window.h = Terminal.screen.h;
+    return Window.w = Terminal.screen.w;
   };
 
   Window.resize = function() {
     var tab, _i, _len, _ref;
     Logger.out("window caught resize " + process.stdout.columns + ", " + process.stdout.rows);
-    Terminal.screen.w = process.stdout.columns;
-    Terminal.screen.h = process.stdout.rows;
-    Window.h = process.stdout.rows;
+    Window._resize();
     _ref = Window.tabs;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       tab = _ref[_i];
@@ -37,6 +51,7 @@ module.exports = Window = (function() {
 
   Window.keypress = function(ch, key) {
     Logger.out("caught keypress: " + JSON.stringify(arguments));
+    Window.active_tab.active_view.cursors[0];
     if (key && key.ctrl && key.name === 'c') {
       die('');
     }

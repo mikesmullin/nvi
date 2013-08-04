@@ -15,34 +15,29 @@ path =  require 'path'
 
 module.exports = class HydraBuffer
 # belongs to one or more views
-# one per buffer
-  @buffers: {} # registry ensures only one instance per buffer
+# one per stream
+  @buffers: {} # registry ensures only one instance per stream
   constructor: (o) ->
-    # decide whether or not this is a unique request
-    # and instantiate only when needed
-    if o.file # we're expected to open a file on disk
+    if o.file isnt undefined # we're expected to open a file on disk
       # absolute filename path on disk becomes buffer unique identifier
       # TODO: maybe fs.realpath() is useful here to resolve past symlinks?
-      absfile = path.resolve o.file
-      buffer_id = 'file://'+absfile
-      if HydraBuffer.buffers[buffer_id] is undefined
-        buffer = HydraBuffer.from_file absfile
-    # TODO: support opening other types of buffers like stdin, in-memory buffers, etc.
-    buffer.views ||= []
-    buffer.views.push View
-    HydraBuffer.buffers[buffer_id] = buffer
+      buffer = type: 'file', id: path.resolve o.file
+    else
+      buffer = type: 'memory', id: null
 
-  @from_file: (absfile) ->
-    # TOOD: how to catch errors with *Sync()?
-    fs.openSync absfile, 'r'
-    # TODO: make buffer size equal max view area in bytes
-    buffer = new Buffer 1024
-    # TODO: make buffer size flexible so that max can resize mid-chunking
-    #       or make my own intermediary buffer object to do the same
-    fs.readSync fd, buffer, 0, buffer.length, 0
-    b.toString 'utf8'
+    # decide whether or not this is a unique request
+    if buffer.id is null or HydraBuffer.buffers[buffer.id] is undefined
+      # instantiate new buffer only when needed
+      buffer.views = []
+      HydraBuffer.buffers[buffer.id] = buffer
 
-  # TODO: need ability to seek, rewind, etc.
-  #       in a way that works with each buffer type
-  #       but beginning with file buffer only is fine for now
-  # TODO: need ability to dynamically resize hydrabuffer
+    buffer = HydraBuffer.buffers[buffer.id]
+    buffer.views.push o.view # remember which views are using this buffer
+
+    switch buffer.type
+      when 'file'
+        buffer.data = fs.readFileSync buffer.id
+      when 'memory'
+        buffer.data = new Buffer Array 1024
+
+    return buffer

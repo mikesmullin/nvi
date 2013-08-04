@@ -8,9 +8,22 @@ Cursor = require('./Cursor');
 module.exports = View = (function() {
   function View(o) {
     this.tab = o.tab;
-    this.hydrabuffer = HydraBuffer;
-    this.w = null;
-    this.h = null;
+    this.cursors = [
+      new Cursor({
+        user: Window.current_user,
+        view: this,
+        x: 0,
+        y: 0
+      })
+    ];
+    this.buffer = HydraBuffer({
+      view: this,
+      file: o.file
+    });
+    this.x = o.x;
+    this.y = o.y;
+    this.w = o.w;
+    this.h = o.h;
     this.offset = null;
   }
 
@@ -19,15 +32,34 @@ module.exports = View = (function() {
   };
 
   View.prototype.draw = function() {
-    var y, _i, _ref, _ref1;
-    Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(1, 1).echo('  1 ');
-    Terminal.xbg(NviConfig.text_bg).xfg(NviConfig.text_fg).echo("how is this?").clear_eol();
-    Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).echo('  2 ');
-    Terminal.xbg(NviConfig.text_bg).xfg(NviConfig.text_fg).echo("hehe").clear_eol();
-    for (y = _i = _ref = Terminal.cursor.y, _ref1 = Terminal.screen.h; _ref <= _ref1 ? _i <= _ref1 : _i >= _ref1; y = _ref <= _ref1 ? ++_i : --_i) {
-      Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(1, y).fg('bold').echo('~').fg('unbold');
+    var clipped, data, end, gutter, gutter_size, line, lines, ln, y, yy, _i, _j, _ref;
+    Logger.out('View.draw() was called.');
+    data = this.buffer.data.toString('utf8');
+    if (-1 !== (end = data.indexOf('\u0000'))) {
+      data = data.substr(0, end);
     }
-    return Terminal.go(8, 2).xfg(255);
+    lines = data.split('\n');
+    Logger.out("lines: " + (JSON.stringify(lines, null, 2)));
+    gutter_size = Math.max(3, lines.length.toString().length + 1);
+    gutter = repeat(gutter_size, ' ');
+    yy = Math.min(lines.length, this.h);
+    Logger.out("lines.length is " + lines.length + ", yy is " + yy);
+    for (ln = _i = 1; 1 <= yy ? _i <= yy : _i >= yy; ln = 1 <= yy ? ++_i : --_i) {
+      line = lines[ln - 1];
+      Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(this.x + 1, this.y + ln).echo((gutter + ln).substr(gutter_size * -1) + ' ');
+      clipped = line.length > this.w;
+      if (clipped) {
+        line = line.substr(0, this.w - 1) + '>';
+      }
+      Terminal.xbg(NviConfig.text_bg).xfg(NviConfig.text_fg).echo(line).clear_eol();
+    }
+    Logger.out("now ln " + ln + ", @h " + this.h);
+    if (ln < this.h) {
+      for (y = _j = ln, _ref = this.h; ln <= _ref ? _j <= _ref : _j >= _ref; y = ln <= _ref ? ++_j : --_j) {
+        Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(this.x + 1, this.y + y).fg('bold').echo('~').fg('unbold');
+      }
+    }
+    return Terminal.go(this.x + gutter_size + 2, this.y + 0).xfg(255);
   };
 
   return View;

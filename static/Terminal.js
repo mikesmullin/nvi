@@ -12,15 +12,11 @@ module.exports = Terminal = (function() {
         Terminal.cursor.y++;
         return '';
       });
-      Logger.out("cx was " + Terminal.cursor.x + ", cy was " + Terminal.cursor.y);
-      Logger.out("s.length " + w_delta + " s=\"" + s + "\"");
-      Logger.out("Terminal.screen: " + (JSON.stringify(Terminal.screen)));
       Terminal.cursor.x += w_delta;
       if (Terminal.cursor.x > Terminal.screen.w) {
         Terminal.cursor.y += Math.floor(Terminal.cursor.x / Terminal.screen.w);
         Terminal.cursor.x = Terminal.cursor.x % Terminal.screen.w;
       }
-      Logger.out("cx now " + Terminal.cursor.x + ", cy now " + Terminal.cursor.y);
     }
     process.stdout.write(s);
     return this;
@@ -128,7 +124,6 @@ module.exports = Terminal = (function() {
     Terminal.cursor.x = x;
     Terminal.cursor.y = y;
     Terminal.esc(Terminal.esc.POS(x, y));
-    Logger.out("cursor now " + x + ", " + y);
     return this;
   };
 

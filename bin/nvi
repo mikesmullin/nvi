@@ -1,2 +1,2 @@
 #!/usr/bin/env sh
-node static/main.js
+node static/main.js $*

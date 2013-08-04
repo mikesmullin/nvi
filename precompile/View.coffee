@@ -11,22 +11,37 @@ module.exports = class View
   constructor: (o) ->
     @tab = o.tab
     # although there can be many cursors in a single view
-    @cursors = [new Cursor] # cursor 0 is always my_cursor
+    @cursors = [new Cursor user: Window.current_user, view: @, x: 0, y: 0] # cursor 0 is always my_cursor
     # or the one that is controlled by the current_user
     # the rest of the cursors belong to other views/users of the same file
-    @hydrabuffer = HydraBuffer view: @, file: o.file # will instantiate itself if needed
+    @buffer = HydraBuffer view: @, file: o.file # will instantiate itself if needed
     # that depends on whether we were given a filename
     # but let HydraBuffer track and decide on this internally
-    @w = null
-    @h = null
+    @x = o.x
+    @y = o.y
+    @w = o.w
+    @h = o.h
     @offset = null
   resize: ->
     @draw()
   draw: ->
-    Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(1,1).echo('  1 ')
-    Terminal.xbg(NviConfig.text_bg).xfg(NviConfig.text_fg).echo("how is this?").clear_eol()
-    Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).echo('  2 ')
-    Terminal.xbg(NviConfig.text_bg).xfg(NviConfig.text_fg).echo("hehe").clear_eol()
-    for y in [Terminal.cursor.y..Terminal.screen.h]
-      Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(1,y).fg('bold').echo('~').fg('unbold')
-    Terminal.go(8,2).xfg(255)
+    Logger.out 'View.draw() was called.'
+    data = @buffer.data.toString 'utf8'
+    lines = data.split "\n"
+    Logger.out "lines: #{JSON.stringify lines, null, 2}"
+    gutter_size = Math.max 3, lines.length.toString().length + 1
+    gutter = repeat gutter_size, ' '
+    yy = Math.min lines.length, @h
+    Logger.out "lines.length is #{lines.length}, yy is #{yy}"
+    for ln in [1..yy]
+      line = lines[ln-1]
+      Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(@x+1,@y+ln).echo((gutter+ln).substr(gutter_size * -1)+' ')
+      clipped = line.length > @w
+      if clipped
+        line = line.substr(0, @w-1) + '>'
+      Terminal.xbg(NviConfig.text_bg).xfg(NviConfig.text_fg).echo(line).clear_eol()
+    Logger.out "now ln #{ln}, @h #{@h}"
+    if ln < @h
+      for y in [ln..@h]
+        Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(@x+1,@y+y).fg('bold').echo('~').fg('unbold')
+    Terminal.go(@x+gutter_size+2,@y+0).xfg(255)

@@ -23,10 +23,12 @@ process.stdin.setEncoding 'utf8' # modern times
 
 [nil, nil, filename] = process.argv
 User = require './User'
-Window = require './Window'
+global.Window = require './Window'
 
 Logger.out 'init'
-Window.init current_user: new User NviConfig.user
+Window.init
+  current_user: new User NviConfig.user
+  file: filename
 process.stdout.on 'resize', Window.resize
 process.stdin.on 'keypress', Window.keypress
 process.stdin.on 'mousepress', Window.mousepress
