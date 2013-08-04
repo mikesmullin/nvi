@@ -1,10 +1,19 @@
 # Very opinionated Node.JS VI clone
 
-my dream collaborative editor:
+## Installation
+```bash
+npm install nvi -g
+```
 
-a vim clone
+## Usage
+```bash
+nvi
+```
 
-except just taking the best parts of vim
+## Rambling Specification:
+this will become my dream [collaborative] editor.
+
+i'm just taking the best parts of vim
  and making them better
    line numbers
    buffers
@@ -18,23 +27,8 @@ except just taking the best parts of vim
      object browser
 
 
-
-
-
-
-
-
-
-http://www.cs.tut.fi/~jkorpela/chars/c0.html
-
-but not a vim clone
- ability to switch into a notepad-like n00b mode
-
-with support for collaborative editing
-
 using multi-colored cursors
   and the shortest possible network language to communicate changes
-
 
 e.g. the collab feature should have:
   follow mode
@@ -51,21 +45,12 @@ e.g. the collab feature should have:
 
   detect an out-of-sync state (what is hash of chars on line RAND characters RANDx - RANDY?) if its not the same then resend the document
 
-
-
-
 later i would add support for:
 
   coffeescript
     syntax highlighting
     type inference
     code completion
-
-
-
-
-
-
 
 there's only one buffer per file
 a buffer does not have to be a file
@@ -340,3 +325,24 @@ the window statusbar is always visible
 really they both are
 i guess the view one gets added by a plugin for gvim
 but mine will be there in core
+
+
+now this is getting fun!
+i'm going to take some liberties with this
+to make vim easier for newbs
+
+no matter where you are in vim, you should always see the current mode
+in a reliable place, because modes are so fundamental to vi operation
+my modes will be color coded like the vi powerline theme
+they will always appear in the view statusbar
+except for COMMAND mode which will appear in the statusbar
+this will make it very obvious what is going on
+
+additionally, my vim will begin the user in INSERT mode
+except remember i'm calling it NORMAL mode
+so that when they start out its most like what they might
+be famliar with: notepad, and they hvae to hit ESC to get to
+COMBO mode (what i call the vi NORMAL mode)
+
+
+
