@@ -11,11 +11,10 @@ module.exports = class View
   constructor: (o) ->
     @tab = o.tab
     @tab.active_view = @ if o.active
-    @resize x: o.x, y: o.y, w: o.w, h: o.h, dont_draw: true
     # although there can be many cursors in a single view
-    @cursors = [new Cursor user: Window.current_user, view: @, x: 1, y: 1] # cursor 0 is always my_cursor
-    # or the one that is controlled by the current_user
-    # the rest of the cursors belong to other views/users of the same file
+    # @cursors[0] is always the current_user's cursor
+    # the remaining cursors belong to other views/users of the same file
+    @cursors = [new Cursor user: Window.current_user, view: @, x: o.x, y: o.y]
     @buffer = HydraBuffer view: @, file: o.file # will instantiate itself if needed
     # that depends on whether we were given a filename
     # but let HydraBuffer track and decide on this internally
@@ -23,9 +22,10 @@ module.exports = class View
     @lines.pop() # discard last line erroneously appended by fs.read
     @lines = [''] unless @lines.length >= 1 # may never have less than one line
     @gutter = repeat (Math.max 3, @lines.length.toString().length + 2), ' '
-    @draw()
+    @resize x: o.x, y: o.y, w: o.w, h: o.h
     Window.set_status "\"#{@buffer.alias}\", #{@lines.length}L, #{@buffer.data.length}C"
   resize: (o) ->
+    # TODO: fix tildes not being drawn on resize
     Logger.out "View.resize(#{JSON.stringify o})"
     @x = o.x
     die "View.x may not be less than 1!" if @x < 1
@@ -37,17 +37,16 @@ module.exports = class View
     @h = o.h; die "View.h may not be less than 2!" if @h < 2
     # inner height (after decorators like status bar)
     @ih = o.h - 1
-    @draw() unless o.dont_draw
-    # TODO: fix tildes not being drawn on resize
+    @draw()
   draw_status_bar: ->
     x = @x; y = @y + @h; w = @w; h = 1
     Terminal.clear_space x: x, y: y, w: w, h: h, fg: 255, bg: 196
-    Terminal.echo "view status bar"
+    Terminal.echo "View.status_bar here"
   draw: ->
     # TODO: fix last line shown always on bottom; overriding actual line
     Logger.out 'View.draw() was called.'
     @draw_status_bar()
-    yy = Math.min @lines.length, @ih-1 # zero-based
+    yy = Math.min @lines.length, @ih-1
     for ln in [0...yy]
       line = @lines[ln]
       Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(@x,@y+ln).echo((@gutter+(ln+1)).substr((@gutter.length-1) * -1)+' ')

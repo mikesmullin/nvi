@@ -6,16 +6,18 @@ module.exports = class Tab
   constructor: (o) ->
     @name = o.name or 'untitled'
     Window.active_tab = @ if o.active
-    @resize w: o.w, h: o.h
-    @views = [new View tab: @, file: o.file, x: 1, y: 1, w: @w, h: @ih, active: o.active] # can never have fewer than one view
+    @resize x: o.x, y: o.y, w: o.w, h: o.h
+    @views = [new View tab: @, file: o.file, x: o.x, y: o.y, w: @w, h: @ih, active: o.active] # can never have fewer than one view
   resize: (o) ->
-    #@x = 0 # safe to assume
-    #@y = 0
+    @x = o.x
+    die "Tab.x may not be less than 1!" if @x < 1
+    @y = o.y
+    die "Tab.y may not be less than 1!" if @y < 1
     @w = o.w
     die "Tab.w may not be less than 1!" if @w < 1
     # outer height
     @h = o.h
-    die "Tab.h may not be less than 1!" if @h < 1
+    die "Tab.h may not be less than 1!" if @h < 1 # TODO: or 2 if tab bar is present
     # inner height
     @ih = o.h # optionally without a tab bar
     @draw()
