@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "Very opinionated Node.JS VI clone",
   "main": "index.js",
+  "bin": {
+    "nvi": "bin/nvi"
+  },
   "dependencies": {
     "keypress": "~0.2.1"
   },
