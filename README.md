@@ -260,3 +260,18 @@ and 1 char wide;
 
 opening more than one tab creates a 1char high tabbar at top of the screen
 
+
+
+i may split View into ReadOnlyView extended by EditableView
+
+
+HydraBuffer doesn't need to know about cursors
+the view is always the one i keep landing in
+its the one that colors the cursor
+and shows it moving around the view
+it has really nothing to do with the buffer
+if a cursor moves off of a view, does it matter? (if a tree falls in the forest, does it make a sound?)
+no.
+
+
+
