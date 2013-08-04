@@ -27,20 +27,22 @@ module.exports = class View
   draw: ->
     Logger.out 'View.draw() was called.'
     data = @buffer.data.toString 'utf8'
-    lines = data.split "\n"
-    Logger.out "lines: #{JSON.stringify lines, null, 2}"
+    lines = data.split("\n")
+    lines.pop() # discard last line erroneously appended by fs.read
     gutter_size = Math.max 3, lines.length.toString().length + 1
     gutter = repeat gutter_size, ' '
     yy = Math.min lines.length, @h
     Logger.out "lines.length is #{lines.length}, yy is #{yy}"
-    for ln in [1..yy]
-      line = lines[ln-1]
-      Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(@x+1,@y+ln).echo((gutter+ln).substr(gutter_size * -1)+' ')
-      clipped = line.length > @w
-      if clipped
-        line = line.substr(0, @w-1) + '>'
-      Terminal.xbg(NviConfig.text_bg).xfg(NviConfig.text_fg).echo(line).clear_eol()
-    Logger.out "now ln #{ln}, @h #{@h}"
+    ln = 1
+    if ln < lines.length
+      for ln in [1..yy]
+        line = lines[ln-1]
+        Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(@x+1,@y+ln).echo((gutter+ln).substr(gutter_size * -1)+' ')
+        clipped = line.length > @w
+        if clipped
+          line = line.substr(0, @w-1) + '>'
+        Terminal.xbg(NviConfig.text_bg).xfg(NviConfig.text_fg).echo(line).clear_eol()
+      Logger.out "now ln #{ln}, @h #{@h}"
     if ln < @h
       for y in [ln..@h]
         Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(@x+1,@y+y).fg('bold').echo('~').fg('unbold')

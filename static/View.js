@@ -32,28 +32,28 @@ module.exports = View = (function() {
   };
 
   View.prototype.draw = function() {
-    var clipped, data, end, gutter, gutter_size, line, lines, ln, y, yy, _i, _j, _ref;
+    var clipped, data, gutter, gutter_size, line, lines, ln, y, yy, _i, _j, _ref;
     Logger.out('View.draw() was called.');
     data = this.buffer.data.toString('utf8');
-    if (-1 !== (end = data.indexOf('\u0000'))) {
-      data = data.substr(0, end);
-    }
-    lines = data.split('\n');
-    Logger.out("lines: " + (JSON.stringify(lines, null, 2)));
+    lines = data.split("\n");
+    lines.pop();
     gutter_size = Math.max(3, lines.length.toString().length + 1);
     gutter = repeat(gutter_size, ' ');
     yy = Math.min(lines.length, this.h);
     Logger.out("lines.length is " + lines.length + ", yy is " + yy);
-    for (ln = _i = 1; 1 <= yy ? _i <= yy : _i >= yy; ln = 1 <= yy ? ++_i : --_i) {
-      line = lines[ln - 1];
-      Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(this.x + 1, this.y + ln).echo((gutter + ln).substr(gutter_size * -1) + ' ');
-      clipped = line.length > this.w;
-      if (clipped) {
-        line = line.substr(0, this.w - 1) + '>';
+    ln = 1;
+    if (ln < lines.length) {
+      for (ln = _i = 1; 1 <= yy ? _i <= yy : _i >= yy; ln = 1 <= yy ? ++_i : --_i) {
+        line = lines[ln - 1];
+        Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(this.x + 1, this.y + ln).echo((gutter + ln).substr(gutter_size * -1) + ' ');
+        clipped = line.length > this.w;
+        if (clipped) {
+          line = line.substr(0, this.w - 1) + '>';
+        }
+        Terminal.xbg(NviConfig.text_bg).xfg(NviConfig.text_fg).echo(line).clear_eol();
       }
-      Terminal.xbg(NviConfig.text_bg).xfg(NviConfig.text_fg).echo(line).clear_eol();
+      Logger.out("now ln " + ln + ", @h " + this.h);
     }
-    Logger.out("now ln " + ln + ", @h " + this.h);
     if (ln < this.h) {
       for (y = _j = ln, _ref = this.h; ln <= _ref ? _j <= _ref : _j >= _ref; y = ln <= _ref ? ++_j : --_j) {
         Terminal.xbg(NviConfig.gutter_bg).xfg(NviConfig.gutter_fg).go(this.x + 1, this.y + y).fg('bold').echo('~').fg('unbold');

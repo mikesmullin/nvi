@@ -55,9 +55,6 @@ module.exports = class Terminal
   @screen:
     w: null
     h: null
-  @buffer:
-    w: null
-    h: 2
   @go: (x,y) ->
     Terminal.cursor.x = x
     Terminal.cursor.y = y
@@ -67,7 +64,7 @@ module.exports = class Terminal
   @move: (x, y=0) ->
     dx = Terminal.cursor.x + x
     dy = Terminal.cursor.y + y
-    if dx > 4 and dx < Terminal.screen.w and dy > 0 and dy <= Terminal.buffer.h
+    if dx > 4 and dx < Terminal.screen.w and dy > 0 and dy <= Terminal.screen.h
       @go dx, dy
   @fg: (color) -> Terminal.esc Terminal.esc.color[color]; @
   @bg: (color) -> Terminal.esc Terminal.esc.color['bg_'+color]; @

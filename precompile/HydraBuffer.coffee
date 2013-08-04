@@ -38,6 +38,6 @@ module.exports = class HydraBuffer
       when 'file'
         buffer.data = fs.readFileSync buffer.id
       when 'memory'
-        buffer.data = new Buffer Array 1024
+        buffer.data = new Buffer 0
 
     return buffer

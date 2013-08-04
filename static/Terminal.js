@@ -115,11 +115,6 @@ module.exports = Terminal = (function() {
     h: null
   };
 
-  Terminal.buffer = {
-    w: null,
-    h: 2
-  };
-
   Terminal.go = function(x, y) {
     Terminal.cursor.x = x;
     Terminal.cursor.y = y;
@@ -134,7 +129,7 @@ module.exports = Terminal = (function() {
     }
     dx = Terminal.cursor.x + x;
     dy = Terminal.cursor.y + y;
-    if (dx > 4 && dx < Terminal.screen.w && dy > 0 && dy <= Terminal.buffer.h) {
+    if (dx > 4 && dx < Terminal.screen.w && dy > 0 && dy <= Terminal.screen.h) {
       return this.go(dx, dy);
     }
   };

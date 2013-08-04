@@ -32,7 +32,7 @@ module.exports = HydraBuffer = (function() {
         buffer.data = fs.readFileSync(buffer.id);
         break;
       case 'memory':
-        buffer.data = new Buffer(Array(1024));
+        buffer.data = new Buffer(0);
     }
     return buffer;
   }
