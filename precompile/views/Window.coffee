@@ -1,3 +1,4 @@
+Bar = require './Bar'
 Tab = require './Tab'
 
 module.exports = class Window
@@ -11,10 +12,12 @@ module.exports = class Window
     Window.command_history_position = 0
     Window.x = 1
     Window.y = 1
-    Window.resize()
+    Window.resize dont_draw: true
+    Window.status_bar = new Bar x: 1, y: Window.h, w: Window.w, h: 1, bg: NviConfig.window_status_bar_bg, fg: NviConfig.window_status_bar_fg
+    Window.draw()
     Window.tabs = [new Tab file: o?.file, x: Window.x, y: Window.y, w: Window.w, h: Window.ih, active: true] # can never have fewer than one tab
     return
-  @resize: ->
+  @resize: (o) ->
     Logger.out "window caught resize #{process.stdout.columns}, #{process.stdout.rows}"
     Terminal.screen.w = process.stdout.columns
     Terminal.screen.h = process.stdout.rows
@@ -27,19 +30,13 @@ module.exports = class Window
     # inner dimensions
     Window.ih = Window.h - 1 # make space for status bar
     Window.iw = Window.w
-    Window.draw()
-    if Window.tabs
-      tab.resize w: Window.w, h: Window.ih for tab in Window.tabs
-    return
-  @draw_status_bar: ->
-    Terminal.clear_space
-      x: 1, y: Window.h, w: Window.w, h: 1,
-      bg: NviConfig.window_status_bar_bg,
-      fg: NviConfig.window_status_bar_fg
+    Window.draw() unless o?.dont_draw
+    Window.status_bar.resize y: Window.h, w: Window.w if Window.status_bar
     return
   @draw: ->
-    Terminal.xbg(NviConfig.view_gutter_bg).clear_screen().flush()
-    Window.draw_status_bar()
+    #Terminal.xbg(NviConfig.view_gutter_bg).clear_screen().flush() # probably don't need to do this
+    if Window.tabs
+      tab.resize w: Window.w, h: Window.ih for tab in Window.tabs
     return
 
   @keypress: (ch, key) ->
@@ -64,7 +61,7 @@ module.exports = class Window
           cmd += Window.command_line.substr x-1, Window.command_line.length-x+1
           Window.command_line = cmd
           Logger.out "bksp cmd len #{Window.command_line.length}, cmd #{Window.command_line}"
-          Window.set_status ':'+cmd
+          Window.status_bar.set_text ':'+cmd
           Terminal.go(x, Terminal.screen.h).flush()
       else if key.name is 'delete'
         return # TODO: finish this WIP
@@ -96,12 +93,11 @@ module.exports = class Window
           return
         when ':'
           Window.mode = 'COMMAND'
-          Window.draw_status_bar()
-          Terminal.echo(':').flush()
+          Window.status_bar.set_text ':', false
           return
 
     if ch is "\u0003" # Ctrl-c
-      Window.set_status 'Type :quit<Enter> to exit Nvi'
+      Window.status_bar.set_text 'Type :quit<Enter> to exit Nvi'
       die '' # for convenience while debugging
       return
 
@@ -123,17 +119,11 @@ module.exports = class Window
     Logger.out "caught mousepress: "+ JSON.stringify e
     return
 
-  @set_status: (s) ->
-    Window.draw_status_bar()
-    Terminal.echo(s.substr(0, Window.w)).clear_eol().flush()
-    Window.current_cursor().move 0 # return cursor to last position
-    return
   @set_mode: (mode) ->
     Window.mode = mode
-    Window.draw_status_bar()
-    # TODO: make it so i can pass color codes to Window.set_status()
-    Terminal.xfg(NviConfig.window_mode_fg).fg('bold').echo("-- #{Window.mode} MODE --").fg('unbold').xfg(NviConfig.window_status_bar_fg).clear_eol().flush()
-    Window.current_cursor().move 0 # return cursor to last position
+    Window.status_bar.set_text Terminal
+      .xfg(NviConfig.window_mode_fg).fg('bold').echo("-- #{Window.mode} MODE --").fg('unbold')
+      .xfg(NviConfig.window_status_bar_fg).get_clean()
     return
   @current_cursor: ->
     Window.active_tab?.active_view?.cursors?[0]

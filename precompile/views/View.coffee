@@ -1,3 +1,4 @@
+Bar = require './Bar'
 HydraBuffer = require '../models/HydraBuffer'
 ViewCursor = require './ViewCursor'
 
@@ -18,10 +19,11 @@ module.exports = class View
     @lines.pop() # discard last line erroneously appended by fs.read
     @lines = [''] unless @lines.length >= 1 # may never have less than one line
     @gutter = repeat (Math.max 4, @lines.length.toString().length + 2), ' '
-    @resize x: o.x, y: o.y, w: o.w, h: o.h
-
-    #Window.set_status "\"#{@buffer.base}\", #{@lines.length}L, #{@buffer.data.length}C"
-    @set_status Terminal
+    @resize x: o.x, y: o.y, w: o.w, h: o.h, dont_draw: true
+    @status_bar = new Bar x: @x, y: @y + @ih, w: @w, h: 1, bg: NviConfig.view_status_bar_active_bg, fg: NviConfig.view_status_bar_active_fg
+    @draw()
+    #Window.status_bar.set_text "\"#{@buffer.base}\", #{@lines.length}L, #{@buffer.data.length}C"
+    @status_bar.set_text Terminal
       .xbg(NviConfig.view_status_bar_active_l1_bg).xfg(NviConfig.view_status_bar_active_l1_fg)
       .echo(@buffer.path).fg('bold')
       .xfg(NviConfig.view_status_bar_active_l1_fg_bold).echo(@buffer.base+' ')
@@ -36,7 +38,6 @@ module.exports = class View
     @cursors = [new ViewCursor user: Window.current_user, view: @, x: @x, y: @y, possessed: true]
     return
   resize: (o) ->
-    Logger.out "View.resize(#{JSON.stringify o})"
     @x = o.x if o.x
     die "View.x may not be less than 1!" if @x < 1
     @y = o.y if o.y
@@ -48,16 +49,10 @@ module.exports = class View
     # inner height (after decorators like status bar)
     @iw = o.w
     @ih = o.h - 1 # make room for status bar
-    @draw()
-    return
-  draw_status_bar: ->
-    Terminal.clear_space
-      x: @x, y: @y + @ih, w: @w, h: 1,
-      bg: NviConfig.view_status_bar_active_bg,
-      fg: NviConfig.view_status_bar_active_fg
+    @draw() unless o.dont_draw
+    @status_bar.resize y: @y + @ih, w: @w if @status_bar
     return
   draw: ->
-    Logger.out 'View.draw() was called.'
     # count visible lines; truncate to view inner height when necessary
     visible_line_h = Math.min @lines.length, @ih
     # draw visible lines
@@ -76,15 +71,6 @@ module.exports = class View
     if visible_line_h < @ih
       for y in [visible_line_h...@ih]
         Terminal.xbg(NviConfig.view_gutter_bg).xfg(NviConfig.view_gutter_fg).go(@x,@y+y).fg('bold').echo('~').fg('unbold').clear_n(@iw-1).flush()
-    @draw_status_bar()
     if @cursors
-      cursor.draw() for cursor in @cursors
-    return
-  set_status: (s) ->
-    @draw_status_bar()
-    #TODO: find out why this doesn't clear to eol
-    Terminal.echo(s.substr(0, View.w)).clear_eol().flush()
-    # TODO: this may not always be the right thing to do
-    if @cursors
-      @cursors[0].draw() # return cursor to user
+      cursor.draw() for cursor, i in @cursors when i isnt 0
     return
