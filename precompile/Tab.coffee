@@ -1,10 +1,12 @@
 View = require './View'
+Cursor = require './Cursor'
 
 module.exports = class Tab
 # has many views
   constructor: (o) ->
     @name = o?.name or 'untitled'
     @views = [new View tab: @] # can never have fewer than one view
+    @active_view = @views[0]
   resize: ->
     view.resize() for view in @views
     @draw()

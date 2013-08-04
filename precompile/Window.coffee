@@ -13,6 +13,7 @@ module.exports = class Window
   @init: (o) ->
     Window.current_user = o.current_user
     Window.tabs = [new Tab] # can never have fewer than one tab
+    Window.active_tab = Window.tabs[0]
     Window.h = null # space available for tabs
     Window.resize()
   @resize: ->
@@ -26,6 +27,10 @@ module.exports = class Window
     Window.draw()
   @keypress: (ch, key) ->
     Logger.out "caught keypress: "+ JSON.stringify arguments
+    # update screen position of my cursor in terminal
+    # TODO: also record (and later broadcast) my cursor position
+    #       within the HydraBuffer
+    Window.active_tab.active_view.cursor
     if key and key.ctrl and key.name is 'c'
       die ''
     switch key.name
