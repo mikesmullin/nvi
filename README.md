@@ -218,4 +218,25 @@ when syncing hydrabuffers / views
 
 
 
+for a view statusbar just show:
+
+relative path, bold filename
+dont show line endings like 'unix | mac | win' thats pointless
+instead highlight whitespace aggressively and with favoritism for unix
+show percentage of file remaining
+and cursor x:y pos
+
+
+show treeview directory structure
+  i'll have to implement this too because it needs remote support
+
+the modes i'll implement will be:
+  NORMAL except i'll call it COMBO
+  INSERT except i'll call it NORMAL
+  REPLACE i'll keep this the same
+  V-LINE except i'll call it LINE-BLOCK
+  V-BLOCK exept i'll call it BLOCK
+
+
+
 
