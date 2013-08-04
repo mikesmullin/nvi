@@ -2,8 +2,8 @@
 #       pass them via instantiation like teacup
 #       and move utility functions into something like Underscore _
 global.NviConfig = require '../config.json'
-global.Logger = require './Logger'
-global.Terminal = require './Terminal'
+global.Logger = require './models/Logger'
+global.Terminal = require './views/Terminal'
 global.delay = (s,f) -> setTimeout f, s
 global.interval = (s,f) -> setInterval f, s
 global.repeat = (n,s) -> o = ''; o += s for i in [0...n]; o
@@ -40,8 +40,8 @@ process.on 'exit', -> keypress.disableMouse process.stdout # return to normal fo
 process.stdin.setEncoding 'utf8' # modern times
 
 [nil, nil, filename] = process.argv
-User = require './User'
-global.Window = require './Window'
+User = require './models/User'
+global.Window = require './views/Window'
 
 Logger.out 'init'
 Window.init

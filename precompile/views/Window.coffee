@@ -1,13 +1,3 @@
-### TODO:
-* mode toggle
-* status bar
-* arrow keys cursor movement constrained by view text depending on mode
-* lclick to place cursor
-* lclick+drag to highlight
-* double-lclick to highlight word
-* triple-lclick to highlight line
-###
-
 Tab = require './Tab'
 
 module.exports = class Window

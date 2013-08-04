@@ -3,9 +3,9 @@ var User, cleaned_up, cleanup, filename, keypress, nil, _ref;
 
 global.NviConfig = require('../config.json');
 
-global.Logger = require('./Logger');
+global.Logger = require('./models/Logger');
 
-global.Terminal = require('./Terminal');
+global.Terminal = require('./views/Terminal');
 
 global.delay = function(s, f) {
   return setTimeout(f, s);
@@ -68,9 +68,9 @@ process.stdin.setEncoding('utf8');
 
 _ref = process.argv, nil = _ref[0], nil = _ref[1], filename = _ref[2];
 
-User = require('./User');
+User = require('./models/User');
 
-global.Window = require('./Window');
+global.Window = require('./views/Window');
 
 Logger.out('init');
 

@@ -1,4 +1,4 @@
-HydraBuffer = require './HydraBuffer'
+HydraBuffer = require '../models/HydraBuffer'
 ViewCursor = require './ViewCursor'
 
 module.exports = class View

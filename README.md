@@ -365,3 +365,24 @@ its important to differentiate between the Terminal.cursor (there is only one; u
 and the ViewCursor (there can be one or more per view; used by users to traverse a view)
 additionally between a ViewCursor that is the currently possessed (uses Terminal.cursor)
 and a ViewCursor that is not possessed (unfocused, or someone else's cursor; drawn manually)
+
+
+todo next:
+
+modularize the status bar since it is now used twice
+remember last statusbar value, so when i resize it follows
+
+modularize the custom readline functionality i added to the command bar
+fix view statusbar clear eol
+make it render more than one view in split screen
+make view statusbar toggle focus with click
+also cursor focus toggle with click
+and render both cursors in same view
+
+hmm maybe also make it so view status bar only appears if there is more than one?
+
+arrow keys cursor movement constrained by view text depending on mode
+lclick to place cursor
+lclick+drag to highlight
+double-lclick to highlight word
+triple-lclick to highlight line
