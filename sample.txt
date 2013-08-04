@@ -1,4 +1,3 @@
-[nil, nil, filename] = process.argv
 keypress = require 'keypress'
 global.logger = require './logger'
 global.delay = (s,f) -> setTimeout f, s
