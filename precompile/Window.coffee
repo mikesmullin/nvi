@@ -30,7 +30,7 @@ module.exports = class Window
     # update screen position of my cursor in terminal
     # TODO: also record (and later broadcast) my cursor position
     #       within the HydraBuffer
-    Window.active_tab.active_view.cursor
+    Window.active_tab.active_view.cursors[0] # my_cursor
     if key and key.ctrl and key.name is 'c'
       die ''
     switch key.name
