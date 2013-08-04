@@ -77,6 +77,7 @@ module.exports = class terminal
   # since some terminal emulators (like tmux) don't implement
   # things like "erase to end of line"
   # we have to output a bunch of spaces, instead
+  # TODO: find out how vim is working normally/smoothly in tmux
   @clear_screen = ->
     terminal.go(1,1).clear()
     for y in [0..terminal.screen.h]

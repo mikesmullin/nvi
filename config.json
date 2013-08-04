@@ -1,0 +1,13 @@
+{
+  "text_fg"   : 255,
+  "text_bg"   : 235,
+  "gutter_bg" : 234,
+  "gutter_fg" : 240,
+  "user": {
+    "id"    : "mike",
+    "name"  : "Mike Smullin",
+    "email" : "mike@smullindesign.com",
+    "color" : 13
+  }
+}
+
