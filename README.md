@@ -275,3 +275,51 @@ no.
 
 
 
+
+so there's a difference between a stream and a buffer here
+the host is going to need to open a buffer
+this also means that the entire file that is being edited needs to
+be able to fit within the available ram memory
+if we are going to save it back to the disk whole again
+this is all a limitation of not being able to write in the middle of a file
+hmm
+i mean technically that's difficult because if anyone could do that
+without a lock on the file
+then you'd never know where you last left off
+in order to insert your changes
+plus even if a fancy filesystem supported this
+you'd still have to implement your own layer on top of that
+like a .vdi or .vmdk file
+to make it fully compatible with other filesystems e.g., windows, sftp, nfs, etc.
+
+the traditional options i have at my disposal are: writeFile (total replacement) and appendFile (write to end only)
+
+so i can only use writeFile()
+which means i have to pass the entire file
+which means the entire file must fit in memory
+which means buffering only the maximum rendered by the views in memory is pointless
+
+well unless i get really creative with diffs
+for example, if while using a readStream, i notate the offset location
+and i assume that the file had a lock on it (could make my own .*.lck files)
+then i would never need the whole file in memory
+i could just replay chunks from the original file up to the point of my stream offset location
+then write my modified contents
+and write chunks of all this to a temporary file on disk (/tmp/nvi-filename.tmp)
+and then mv the new file over the top of the old
+
+i could get even more crafty and only store in-memory my changes and the location
+that they occurred at
+and just keep those in-memory until a save action is requested
+then do the above replay-and-merge flushing-chunks-to-tmp-disk strategy
+
+this way we can collaborate on huge text files, if we want, too
+but on average it will reduce the amount of data needing to be thrown around
+
+so what format would my in-memory buffer take?
+i could use the diff/patch format
+and record line-by-line changes
+except some really long lines could mess with us there
+
+110,10,115:abcdefgh
+
