@@ -164,7 +164,7 @@ module.exports = Window = (function() {
     Window.mode = mode;
     Window.clear_status_bar();
     Window.move_to_status_bar();
-    Terminal.xfg(NviConfig.mode_fg).fg('bold').echo("-- " + Window.mode + " --").fg('unbold').xfg(NviConfig.status_bar_fg).clear_eol();
+    Terminal.xfg(NviConfig.mode_fg).fg('bold').echo("-- " + Window.mode + " MODE --").fg('unbold').xfg(NviConfig.status_bar_fg).clear_eol();
     return Window.current_cursor().move(0);
   };
 

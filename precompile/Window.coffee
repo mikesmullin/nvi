@@ -43,6 +43,7 @@ module.exports = class Window
     code = if ch then ch.charCodeAt 0 else -1
 
     if Window.mode is 'COMMAND'
+      # TODO: get command mode working with resize and redraw()
       if code > 31 and code < 127 # valid command characters
         Window.command_line += ch
         Logger.out "type cmd len #{Window.command_line.length}"
@@ -125,7 +126,7 @@ module.exports = class Window
     Window.clear_status_bar()
     Window.move_to_status_bar()
     # TODO: make it so i can pass color codes to Window.set_status()
-    Terminal.xfg(NviConfig.mode_fg).fg('bold').echo("-- #{Window.mode} --").fg('unbold').xfg(NviConfig.status_bar_fg).clear_eol()
+    Terminal.xfg(NviConfig.mode_fg).fg('bold').echo("-- #{Window.mode} MODE --").fg('unbold').xfg(NviConfig.status_bar_fg).clear_eol()
     Window.current_cursor().move 0 # return cursor to last position
   @current_cursor: ->
     Window.active_tab?.active_view?.cursors?[0]
