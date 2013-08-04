@@ -56,17 +56,13 @@ module.exports = class Terminal
     w: null
     h: null
   @go: (x,y) -> # absolute
-    die "Terminal.cursor.x #{x} may not be less than zero!" if x < 0
+    die "Terminal.cursor.x #{x} may not be less than 1!" if x < 1
     die "Terminal.cursor.x #{x} may not be greater than Terminal.screen.w or #{Terminal.screen.w}!" if x > Terminal.screen.w
     Terminal.cursor.x = x
-    die "Terminal.cursor.y #{y} may not be less than zero!" if y < 0
+    die "Terminal.cursor.y #{y} may not be less than 1!" if y < 1
     die "Terminal.cursor.y #{y} may not be greater than Terminal.screen.h or #{Terminal.screen.h}!" if y > Terminal.screen.h
     Terminal.cursor.y = y
-    # normally coords 0,0 and 1,1 are the same ANSI cursor position
-    # but since most of our math is easier when its zero-indexed
-    # here we increment x and y so that 0,0 is 1,1 and 1,1 is 2,2
-    Terminal.esc Terminal.esc.POS Terminal.cursor.x + 1, Terminal.cursor.y + 1
-    # and just to keep things easy, we also subtract 1 from the terminal.screen.w and terminal.screen.h
+    Terminal.esc Terminal.esc.POS Terminal.cursor.x, Terminal.cursor.y
     Logger.out "Terminal.cursor = x: #{Terminal.cursor.x}, y: #{Terminal.cursor.y}"
     @
   @move: (x, y=0) -> # relative to current position

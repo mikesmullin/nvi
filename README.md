@@ -361,3 +361,5 @@ then i just loop through the cells to determine which functions need to execute 
 the screen
 
 
+its important to differentiate between the Terminal.cursor (there is only one; used to draw the screen)
+and the ViewCursor (there can be one or more per view; used by users to traverse a view)

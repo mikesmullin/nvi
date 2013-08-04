@@ -10,12 +10,6 @@
 
 Tab = require './Tab'
 
-# with z(w) and z(h) we subtract one from the actual W x H
-# working with zero-based indicies keeps our 2D math easy
-# e.g. iteration x...z(w) or y...z(h)
-#      margins x+x or y-y
-global z = (i) -> i-1
-
 module.exports = class Window
 # has one or more tabs
   @init: (o) ->
@@ -25,10 +19,10 @@ module.exports = class Window
     Window.command_line = ''
     Window.command_history = []
     Window.command_history_position = 0
-    Window.x = 0
-    Window.y = 0
+    Window.x = 1
+    Window.y = 1
     Window.resize()
-    Window.tabs = [new Tab file: o?.file, x: 1, y: 1, w: Window.w, h: Window.ih, active: true] # can never have fewer than one tab
+    Window.tabs = [new Tab file: o?.file, x: Window.x, y: Window.y, w: Window.w, h: Window.ih, active: true] # can never have fewer than one tab
   @resize: ->
     Logger.out "window caught resize #{process.stdout.columns}, #{process.stdout.rows}"
     Terminal.screen.w = process.stdout.columns

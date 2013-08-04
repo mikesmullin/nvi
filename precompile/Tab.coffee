@@ -7,7 +7,7 @@ module.exports = class Tab
     @name = o.name or 'untitled'
     Window.active_tab = @ if o.active
     @resize x: o.x, y: o.y, w: o.w, h: o.h
-    @views = [new View tab: @, file: o.file, x: o.x, y: o.y, w: @w, h: @ih, active: o.active] # can never have fewer than one view
+    @views = [new View tab: @, file: o.file, x: @x, y: @y, w: @w, h: @ih, active: o.active] # can never have fewer than one view
   resize: (o) ->
     @x = o.x
     die "Tab.x may not be less than 1!" if @x < 1

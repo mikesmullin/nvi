@@ -1,6 +1,6 @@
-module.exports = class Cursor
+module.exports = class ViewCursor
 # belong to a user
-# belong to a hydrabuffer
+# belong to a view
 # cursors can also highlight and block edit
   constructor: (o) ->
     @user = o.user
@@ -15,6 +15,7 @@ module.exports = class Cursor
     die "Cursor.w may not be less than 1!" if @w < 1
     @h = 1
     die "Cursor.h may not be less than 1!" if @h < 1
+  # users can traverse a view
   go: (@x, @y) -> # relative to view
     Logger.out "View.cursor = x: #{@x}, y: #{@y}"
     Terminal.go @view.x-1 + @view.gutter.length + @x-1, @view.y + @y-1
@@ -26,5 +27,9 @@ module.exports = class Cursor
     #Logger.out "dx #{dx}, dy #{dy}"
     if dx >= 1 and dx <= @view.w - @view.gutter.length and dy >= 1 and dy <= @view.ih
       @go dx, dy
+  # return terminal cursor to coordinates of this Cursor
+  # for the current_user (i.e. after a draw() request)
+  return_to_user: ->
+    @move 0, 0
   draw: ->
     # mainly used to draw other people's cursors
