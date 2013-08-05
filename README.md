@@ -1,5 +1,7 @@
 # Very opinionated Node.JS VI clone
 
+Its an a very ALPHA state right now. Contributions welcome.
+
 ![Screenshot](https://raw.github.com/mikesmullin/nvi/development/docs/screenshot.png)
 
 ## Installation
