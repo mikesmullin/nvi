@@ -1,5 +1,7 @@
 # Very opinionated Node.JS VI clone
 
+![Screenshot](https://raw.github.com/mikesmullin/nvi/development/docs/screenshot.png)
+
 ## Installation
 ```bash
 npm install nvi -g
