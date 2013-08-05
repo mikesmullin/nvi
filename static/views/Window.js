@@ -16,18 +16,15 @@ module.exports = Window = (function() {
     Window.command_history_position = 0;
     Window.x = 1;
     Window.y = 1;
-    Window.resize({
-      dont_draw: true
-    });
+    Window.resize();
     Window.status_bar = new Bar({
-      x: 1,
+      x: Window.x,
       y: Window.h,
       w: Window.w,
       h: 1,
       bg: NviConfig.window_status_bar_bg,
       fg: NviConfig.window_status_bar_fg
     });
-    Window.draw();
     Window.tabs = [
       new Tab({
         file: o != null ? o.file : void 0,
@@ -40,7 +37,7 @@ module.exports = Window = (function() {
     ];
   };
 
-  Window.resize = function(o) {
+  Window.resize = function() {
     Logger.out("window caught resize " + process.stdout.columns + ", " + process.stdout.rows);
     Terminal.screen.w = process.stdout.columns;
     Terminal.screen.h = process.stdout.rows;
@@ -51,19 +48,17 @@ module.exports = Window = (function() {
     Window.h = Terminal.screen.h;
     Window.ih = Window.h - 1;
     Window.iw = Window.w;
-    if (!(o != null ? o.dont_draw : void 0)) {
-      Window.draw();
-    }
+    Window.draw();
+  };
+
+  Window.draw = function() {
+    var tab, _i, _len, _ref;
     if (Window.status_bar) {
       Window.status_bar.resize({
         y: Window.h,
         w: Window.w
       });
     }
-  };
-
-  Window.draw = function() {
-    var tab, _i, _len, _ref;
     if (Window.tabs) {
       _ref = Window.tabs;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -175,16 +170,20 @@ module.exports = Window = (function() {
   };
 
   Window.execute_cmd = function(cmd) {
+    var args;
     Logger.out("would execute command: " + Window.command_line);
     Window.command_history.push(Window.command_line);
-    switch (cmd) {
+    args = cmd.split(' ');
+    switch (args[0]) {
       case 'x':
       case 'wq':
-        die('');
-        break;
+        return die('');
       case 'q':
       case 'quit':
-        die('');
+        return die('');
+      case 'vsplit':
+      case 'hsplit':
+        return Window.active_tab.split(args[0][0], args[1]);
     }
   };
 

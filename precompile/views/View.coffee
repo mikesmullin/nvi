@@ -19,17 +19,15 @@ module.exports = class View
     @lines.pop() # discard last line erroneously appended by fs.read
     @lines = [''] unless @lines.length >= 1 # may never have less than one line
     @gutter = repeat (Math.max 4, @lines.length.toString().length + 2), ' '
-    @resize x: o.x, y: o.y, w: o.w, h: o.h, dont_draw: true
-    @status_bar = new Bar x: @x, y: @y + @ih, w: @w, h: 1, bg: NviConfig.view_status_bar_active_bg, fg: NviConfig.view_status_bar_active_fg
-    @draw()
-    #Window.status_bar.set_text "\"#{@buffer.base}\", #{@lines.length}L, #{@buffer.data.length}C"
-    @status_bar.set_text Terminal
+    @resize x: o.x, y: o.y, w: o.w, h: o.h
+    @status_bar = new Bar x: @x, y: @y + @ih, w: @w, h: 1, bg: NviConfig.view_status_bar_active_bg, fg: NviConfig.view_status_bar_active_fg, text: Terminal
       .xbg(NviConfig.view_status_bar_active_l1_bg).xfg(NviConfig.view_status_bar_active_l1_fg)
       .echo(@buffer.path).fg('bold')
       .xfg(NviConfig.view_status_bar_active_l1_fg_bold).echo(@buffer.base+' ')
       .fg('unbold')
       .xbg(NviConfig.view_status_bar_active_bg).xfg(NviConfig.view_status_bar_active_fg)
       .get_clean()
+    #Window.status_bar.set_text "\"#{@buffer.base}\", #{@lines.length}L, #{@buffer.data.length}C"
 
     # a view has one or more cursors
     # but only one is possessed at a given time
@@ -49,8 +47,9 @@ module.exports = class View
     # inner height (after decorators like status bar)
     @iw = o.w
     @ih = o.h - 1 # make room for status bar
-    @draw() unless o.dont_draw
-    @status_bar.resize y: @y + @ih, w: @w if @status_bar
+    @draw()
+    if @status_bar
+      @status_bar.resize x: @x, y: @y + @ih, w: @w
     return
   draw: ->
     # count visible lines; truncate to view inner height when necessary

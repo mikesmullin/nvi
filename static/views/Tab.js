@@ -67,6 +67,39 @@ module.exports = Tab = (function() {
 
   Tab.prototype.draw = function() {};
 
+  Tab.prototype.split = function(direction, file) {
+    var div_w, half_w, new_view, nv, old_view, view;
+    view = this.active_view;
+    new_view = {};
+    old_view = {};
+    if (direction === 'v') {
+      div_w = 1;
+      half_w = Math.floor((view.w - div_w) / 2);
+      new_view.w = half_w;
+      new_view.x = view.x + div_w + half_w;
+      new_view.h = view.h;
+      new_view.y = view.y;
+      old_view.x = view.x;
+      old_view.y = view.y;
+      old_view.w = half_w;
+      old_view.h = view.h;
+    } else {
+      return;
+    }
+    view.resize(old_view);
+    view.active = false;
+    nv = new View({
+      tab: Window.active_tab,
+      file: file,
+      x: new_view.x,
+      y: new_view.y,
+      w: new_view.w,
+      h: new_view.h,
+      active: true
+    });
+    Window.active_tab.views.push(nv);
+  };
+
   return Tab;
 
 })();

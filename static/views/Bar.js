@@ -3,9 +3,9 @@ var Bar;
 
 module.exports = Bar = (function() {
   function Bar(o) {
-    this.last_text = '';
     this.bg = o.bg || die("Bar.bg must be specified!");
     this.fg = o.fg || die("Bar.fg must be specified!");
+    this.text = o.text || '';
     this.resize({
       x: o.x,
       y: o.y,
@@ -41,7 +41,7 @@ module.exports = Bar = (function() {
   };
 
   Bar.prototype.draw = function() {
-    this.set_text(this.last_text);
+    this.set_text(this.text);
   };
 
   Bar.prototype.set_text = function(s, return_cursor) {
@@ -65,7 +65,7 @@ module.exports = Bar = (function() {
       bg: this.bg,
       fg: this.fg
     }).echo(s.substr(0, this.w)).flush();
-    this.last_text = s;
+    this.text = s;
     if (return_cursor) {
       if ((_ref = Window.current_cursor()) != null) {
         _ref.draw();

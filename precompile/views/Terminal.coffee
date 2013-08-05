@@ -76,7 +76,7 @@ module.exports = class Terminal
     die "Terminal.cursor.y #{y} may not be greater than Terminal.screen.h or #{Terminal.screen.h}!" if y > Terminal.screen.h
     Terminal.cursor.y = y
     Terminal.push_raw Terminal.ansi_esc.cursor_pos Terminal.cursor.x, Terminal.cursor.y
-    Logger.out "Terminal.cursor = x: #{Terminal.cursor.x}, y: #{Terminal.cursor.y}"
+    #Logger.out "Terminal.cursor = x: #{Terminal.cursor.x}, y: #{Terminal.cursor.y}"
     return @
   @move: (x, y=0) -> # relative to current position
     dx = Terminal.cursor.x + x

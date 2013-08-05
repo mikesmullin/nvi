@@ -27,8 +27,7 @@ module.exports = View = (function() {
       x: o.x,
       y: o.y,
       w: o.w,
-      h: o.h,
-      dont_draw: true
+      h: o.h
     });
     this.status_bar = new Bar({
       x: this.x,
@@ -36,10 +35,9 @@ module.exports = View = (function() {
       w: this.w,
       h: 1,
       bg: NviConfig.view_status_bar_active_bg,
-      fg: NviConfig.view_status_bar_active_fg
+      fg: NviConfig.view_status_bar_active_fg,
+      text: Terminal.xbg(NviConfig.view_status_bar_active_l1_bg).xfg(NviConfig.view_status_bar_active_l1_fg).echo(this.buffer.path).fg('bold').xfg(NviConfig.view_status_bar_active_l1_fg_bold).echo(this.buffer.base + ' ').fg('unbold').xbg(NviConfig.view_status_bar_active_bg).xfg(NviConfig.view_status_bar_active_fg).get_clean()
     });
-    this.draw();
-    this.status_bar.set_text(Terminal.xbg(NviConfig.view_status_bar_active_l1_bg).xfg(NviConfig.view_status_bar_active_l1_fg).echo(this.buffer.path).fg('bold').xfg(NviConfig.view_status_bar_active_l1_fg_bold).echo(this.buffer.base + ' ').fg('unbold').xbg(NviConfig.view_status_bar_active_bg).xfg(NviConfig.view_status_bar_active_fg).get_clean());
     this.cursors = [
       new ViewCursor({
         user: Window.current_user,
@@ -75,15 +73,7 @@ module.exports = View = (function() {
     }
     this.iw = o.w;
     this.ih = o.h - 1;
-    if (!o.dont_draw) {
-      this.draw();
-    }
-    if (this.status_bar) {
-      this.status_bar.resize({
-        y: this.y + this.ih,
-        w: this.w
-      });
-    }
+    this.draw();
   };
 
   View.prototype.draw = function() {
@@ -101,6 +91,13 @@ module.exports = View = (function() {
       for (y = _j = visible_line_h, _ref = this.ih; visible_line_h <= _ref ? _j < _ref : _j > _ref; y = visible_line_h <= _ref ? ++_j : --_j) {
         Terminal.xbg(NviConfig.view_gutter_bg).xfg(NviConfig.view_gutter_fg).go(this.x, this.y + y).fg('bold').echo('~').fg('unbold').clear_n(this.iw - 1).flush();
       }
+    }
+    if (this.status_bar) {
+      this.status_bar.resize({
+        x: this.x,
+        y: this.y + this.ih,
+        w: this.w
+      });
     }
     if (this.cursors) {
       _ref1 = this.cursors;

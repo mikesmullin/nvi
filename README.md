@@ -375,6 +375,10 @@ also cursor focus toggle with click
 and render both cursors in same view
 hmm maybe also make it so view status bar only appears if there is more than one?
 
+tcp socket host and guest configurations
+rendering multiple host and guest cursor movements
+
+
 arrow keys cursor movement constrained by view text depending on mode
 lclick to place cursor
 lclick+drag to highlight
@@ -383,3 +387,17 @@ triple-lclick to highlight line
 
 fix the command line disappearing on resize
 next time i implement bksp, del, etc. see if i can modularize the custom readline functionality i added to the command bar
+
+de-duplicate information presented in vim statusbars;
+  treat Window.status_bar as global log notifications like "read 144B, 23C, 104L in 0.23sec"
+  treat View.status_bar as stateful mode and cursor position information
+
+technically my views/View should probably be called views/Buffer and views/BufferCursor
+
+i'll improve on vim window management
+when the terminal resizes, instead of remembering exact widths and collapsing containers on the right
+i'll remember relative widths in percentages and try to retain the aspect ratio of each view
+when the terminal resizes
+
+display errors such as 'Not enough room' in the Window.status_bar
+  support displaying errors in an obnoxious white-on-red color scheme

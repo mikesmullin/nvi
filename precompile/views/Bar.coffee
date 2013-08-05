@@ -1,12 +1,11 @@
 module.exports = class Bar
   constructor: (o) ->
-    @last_text = ''
     @bg = o.bg or die "Bar.bg must be specified!"
     @fg = o.fg or die "Bar.fg must be specified!"
+    @text = o.text or ''
     @resize x: o.x, y: o.y, w: o.w, h: o.h
     return
   resize: (o) ->
-    Logger.out "Bar.resize(#{JSON.stringify o}) called."
     @x = o.x if o.x
     die "Bar.x may not be less than 1!" if @x < 1
     @y = o.y
@@ -18,13 +17,12 @@ module.exports = class Bar
     @draw()
     return
   draw: ->
-    @set_text @last_text
+    @set_text @text
     return
   set_text: (s, return_cursor=true) ->
-    Logger.out "Bar.set_text() called. "+JSON.stringify x: @x, y: @y, w: @w, h: @h, bg: @bg, fg: @fg
     Terminal
       .clear_space(x: @x, y: @y, w: @w, h: @h, bg: @bg, fg: @fg)
       .echo(s.substr(0, @w)).flush()
-    @last_text = s
+    @text = s
     Window.current_cursor()?.draw() if return_cursor # return cursor to last position
     return
