@@ -1,2 +1,2 @@
-#!/usr/bin/env sh
-node static/main.js $*
+#!/usr/bin/env node
+require('../static/main');
