@@ -1,6 +1,6 @@
 {
   "name": "nvi",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Very opinionated Node.JS VI clone",
   "main": "index.js",
   "bin": {
@@ -17,7 +17,7 @@
     "pretest": "coffee --bare -o static/ precompile/",
     "test": "mocha --reporter spec --bail --ui bdd --colors --compilers coffee:coffee-script test/test.coffee"
   },
-  "repository": "",
+  "repository": "git@github.com:mikesmullin/nvi.git",
   "author": "Mike Smullin <mike@smullindesign.com>",
   "license": "GPLv3",
   "gitHead": "34f9faa540a745a2c95026b7e4c3a5a0e93c4b95"
