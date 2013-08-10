@@ -1,4 +1,3 @@
-Row = require './Row'
 Cell = require './Cell'
 
 module.exports = class Tab
@@ -7,11 +6,9 @@ module.exports = class Tab
     @name = o.name or 'untitled'
     Window.active_tab = @ if o.active
     @resize x: o.x, y: o.y, w: o.w, h: o.h
-    @rows = []; @views = []
-    row = new Row tab: @, x: @x, y: @y, w: @w, h: @ih, ph: 1
-    cell = new Cell row: row, pw: 1
-    cell.new_view tab: @, file: o.file, active: o.active
-    return
+    @views = []
+    @topmost_cell = new Cell p: 1, chain: x: @x, y: @y, w: @w, h: @ih
+    @topmost_cell.new_view tab: @, file: o.file, active: o.active
   destroy: ->
   resize: (o) ->
     @x = o.x if o.x
@@ -26,8 +23,7 @@ module.exports = class Tab
     # inner
     @ih = o.h # optionally without a tab bar
     @draw()
-    if @views then for view in @views
-      view.resize x: @cell.x, y: @cell.y, w: @cell.w, h: @cell.h
+    @topmost_cell.resize chain: x: @x, y: @y, w: @w, h: @ih
     return
   draw: ->
     # if draw_tab_bar

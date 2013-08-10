@@ -36,10 +36,9 @@ module.exports = class BufferView
     # only cursor 0 can become possessed by the current_user
     @cursors = [new BufferViewCursor user: Window.current_user, view: @, x: @x, y: @y, possessed: true]
     return
-  destroy: -> # call top-down from Tab.Cell or Tab.Row if possible
-    for view, i in @cell.row.tab.views when view is @
-      @cell.row.tab.views.splice i, 1 # delete
-      return
+  destroy: ->
+    @cell.destroy()
+    return
   resize: (o) ->
     @x = o.x if o.x
     die "BufferView.x may not be less than 1!" if @x < 1
