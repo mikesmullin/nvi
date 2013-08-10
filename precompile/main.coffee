@@ -42,13 +42,14 @@ process.stdin.setEncoding 'utf8' # modern times
 [nil, nil, filename] = process.argv
 User = require './models/User'
 global.Window = require './views/Window'
+ApplicationController = require 'controllers/ApplicationController'
 
 Logger.out 'init'
 Window.init
   current_user: new User NviConfig.user
   file: filename
 process.stdout.on 'resize', Window.resize
-process.stdin.on 'keypress', Window.keypress
-process.stdin.on 'mousepress', Window.mousepress
+process.stdin.on 'keypress', ApplicationController.keypress
+process.stdin.on 'mousepress', ApplicationController.mousepress
 
 process.stdin.resume() # wait for stdin
