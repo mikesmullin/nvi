@@ -20,6 +20,8 @@ module.exports = class Bar
     @set_text @text
     return
   set_text: (s, return_cursor=true) ->
+    # TODO: provide left and right side of bar to set text in
+    # TODO: left side of bar should be rendered last to overlap right
     Terminal
       .clear_space(x: @x, y: @y, w: @w, h: @h, bg: @bg, fg: @fg)
       .echo(s.substr(0, @w)).flush()

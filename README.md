@@ -373,13 +373,18 @@ and a ViewCursor that is not possessed (unfocused, or someone else's cursor; dra
 
 todo next:
 
+figure out the subtleties of vim buffer resizing
+make it draw a dividing line
+make the dividing lines draggable to hresize and vresize
+
+
 make it render more than one view in split screen
 make view statusbar toggle focus with click
 also cursor focus toggle with click
 and render both cursors in same view
 hmm maybe also make it so view status bar only appears if there is more than one?
 
-tcp socket host and guest configurations
+tcp or file socket host and guest configurations
 rendering multiple host and guest cursor movements
 
 
@@ -405,3 +410,5 @@ when the terminal resizes
 
 display errors such as 'Not enough room' in the Window.status_bar
   support displaying errors in an obnoxious white-on-red color scheme
+
+

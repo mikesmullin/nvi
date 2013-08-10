@@ -1,4 +1,4 @@
-module.exports = class ViewCursor
+module.exports = class BufferViewCursor
 # belong to a user
 # belong to a view
 # cursors can also highlight and block edit
@@ -11,18 +11,18 @@ module.exports = class ViewCursor
     return
   resize: (o) ->
     @x = o.x
-    die "ViewCursor.x may not be less than 1!" if @x < 1
+    die "BufferViewCursor.x may not be less than 1!" if @x < 1
     @y = o.x
-    die "ViewCursor.y may not be less than 1!" if @y < 1
+    die "BufferViewCursor.y may not be less than 1!" if @y < 1
     @w = 1
-    die "ViewCursor.w may not be less than 1!" if @w < 1
+    die "BufferViewCursor.w may not be less than 1!" if @w < 1
     @h = 1
-    die "ViewCursor.h may not be less than 1!" if @h < 1
+    die "BufferViewCursor.h may not be less than 1!" if @h < 1
     @draw()
     return
   # users can traverse a view
   go: (@x, @y) -> # relative to view
-    Logger.out "View.cursor = x: #{@x}, y: #{@y}"
+    Logger.out "BufferView.cursor = x: #{@x}, y: #{@y}"
     Terminal.go(@view.x + @view.gutter.length + @x-1, @view.y + @y-1).flush()
     return
   move: (x, y=0) -> # relative to current position

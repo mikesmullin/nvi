@@ -1,9 +1,10 @@
 Bar = require './Bar'
 HydraBuffer = require '../models/HydraBuffer'
-ViewCursor = require './ViewCursor'
+BufferViewCursor = require './BufferViewCursor'
 
-module.exports = class View
-# belong to a user
+module.exports = class BufferView
+# belongs to a Tab.Cell
+# belongs to a user
 # has one hydrabuffer
 # renders text from hydrabuffers
 # also renders cursors over the top of hydrabuffer text
@@ -33,23 +34,26 @@ module.exports = class View
     # but only one is possessed at a given time
     # cursor 0 is always the current_user's cursor
     # only cursor 0 can become possessed by the current_user
-    @cursors = [new ViewCursor user: Window.current_user, view: @, x: @x, y: @y, possessed: true]
+    @cursors = [new BufferViewCursor user: Window.current_user, view: @, x: @x, y: @y, possessed: true]
     return
+  destroy: -> # call top-down from Tab.Cell or Tab.Row if possible
+    for view, i in @cell.row.tab.views when view is @
+      @cell.row.tab.views.splice i, 1 # delete
+      return
   resize: (o) ->
     @x = o.x if o.x
-    die "View.x may not be less than 1!" if @x < 1
+    die "BufferView.x may not be less than 1!" if @x < 1
     @y = o.y if o.y
-    die "View.y may not be less than 1!" if @y < 1
+    die "BufferView.y may not be less than 1!" if @y < 1
     @w = o.w
-    die "View.w may not be less than 1!" if @w < 1
+    die "BufferView.w may not be less than 1!" if @w < 1
     # outer height
-    @h = o.h; die "View.h may not be less than 2!" if @h < 2
+    @h = o.h; die "BufferView.h may not be less than 2!" if @h < 2
     # inner height (after decorators like status bar)
     @iw = o.w
     @ih = o.h - 1 # make room for status bar
     @draw()
-    if @status_bar
-      @status_bar.resize x: @x, y: @y + @ih, w: @w
+    @status_bar.resize x: @x, y: @y + @ih, w: @w if @status_bar
     return
   draw: ->
     # count visible lines; truncate to view inner height when necessary
