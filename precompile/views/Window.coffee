@@ -4,12 +4,6 @@ Tab = require './Tab'
 module.exports = class Window
 # has one or more tabs
   @init: (o) ->
-    Window.current_user = o.current_user
-    # valid options: NORMAL, COMBO, REPLACE, BLOCK, LINE-BLOCK, COMMAND
-    Window.mode = 'NORMAL' # always begin in this mode
-    Window.command_line = ''
-    Window.command_history = []
-    Window.command_history_position = 0
     Window.x = 1
     Window.y = 1
     Window.resize()
@@ -38,11 +32,5 @@ module.exports = class Window
   @draw: ->
     #Terminal.xbg(NviConfig.view_gutter_bg).clear_screen().flush() # don't need to do this
     return
-  @set_mode: (mode) ->
-    Window.mode = mode
-    Window.status_bar.set_text Terminal
-      .xfg(NviConfig.window_mode_fg).fg('bold').echo("-- #{Window.mode} MODE --").fg('unbold')
-      .xfg(NviConfig.window_status_bar_fg).get_clean()
-    return
   @current_cursor: ->
-    Window.active_tab.active_view.cursors[0]
+    Window.active_tab?.active_view?.cursors?[0]

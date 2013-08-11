@@ -1,7 +1,7 @@
 BufferView = require './BufferView'
 
 # Cells provide a tiling window manager effect
-# for BufferViews on Tabs
+# for BufferViews in Tabs
 module.exports = class Cell
 # belongs to Tab or another Cell
 # has one Cell or BufferView
@@ -31,7 +31,6 @@ module.exports = class Cell
         # chains have direction, and it can change
         dir: o.dir or 'v'
         # chains may have zero or one parent cell
-        # this also means a chain of cells all track the same parent
         # but its an important convenience since you would never want
         # to iterate siblings to find the common parent of an orphan cell
         parent: o.parent or null
@@ -49,6 +48,10 @@ module.exports = class Cell
     @x = @y = @w = @h = null
     @resize chain: x: @chain.x, y: @chain.y, w: @chain.w, h: @chain.h
   resize: (o) ->
+    # TODO: ensure we redraw from top-to-bottom, left-to-right
+    #       otherwise the views draw over the top of each other?
+    # TODO: make space for individual view status bars
+    # TODO: make space for divider bars
     if o?.chain
       @chain.x = o.chain.x if o.chain.x
       die "Cell.chain.x may not be less than 1!" if @chain.x < 1
@@ -61,7 +64,7 @@ module.exports = class Cell
     # recalculate every cell size in the chain
     # because no cell size stands on its own;
     #   all cell sizes are relative to the chain
-    #   any cell size changes affect its siblings in the chain
+    #   any cell size changes also affect siblings in the chain
     i = 0; pc = x: @chain.x, y: @chain.y, w: @chain.w, h: @chain.h; @each_neighbor (cell) ->
       switch cell.chain.dir # account for chain direction
         when 'v' # divider is vertical, so cells are horizontal like columns

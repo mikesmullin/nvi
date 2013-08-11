@@ -5,9 +5,9 @@ module.exports = class Tab
   constructor: (o) ->
     @name = o.name or 'untitled'
     Window.active_tab = @ if o.active
-    @resize x: o.x, y: o.y, w: o.w, h: o.h
     @views = []
     @topmost_cell = new Cell p: 1, chain: x: @x, y: @y, w: @w, h: @ih
+    @resize x: o.x, y: o.y, w: o.w, h: o.h
     @topmost_cell.new_view tab: @, file: o.file, active: o.active
   destroy: ->
   resize: (o) ->
@@ -32,7 +32,7 @@ module.exports = class Tab
   activate_view: (view) ->
     v.active = v is view for v in @views
     return
-  split: (dir, file) ->
+  split: (cmd, file) ->
     # TODO: account for divider width during resize
     divider_w = 1
     # TODO: draw divider;
@@ -41,7 +41,8 @@ module.exports = class Tab
 
     # resize all view coordinates and dimensions to make room
     # and initialize new view in the resulting space
-    new_view = @active_view.cell[dir+'split']
+    if cmd is 'split' then cmd = 'hsplit'
+    new_view = @active_view.cell[cmd]
       tab: Window.active_tab
       file: file
 

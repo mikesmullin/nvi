@@ -1,26 +1,34 @@
-module.exports = class ApplicationController
+module.exports = class Application
+  @init: (o) ->
+    Application.current_user = o.current_user
+    # valid options: NORMAL, COMBO, REPLACE, BLOCK, LINE-BLOCK, COMMAND
+    Application.mode = 'NORMAL' # always begin in this mode
+    Application.command_line = ''
+    Application.command_history = []
+    Application.command_history_position = 0
+
   @keypress: (ch, key) ->
     Logger.out "caught keypress: "+ JSON.stringify arguments
     code = if ch then ch.charCodeAt 0 else -1
 
-    if Window.mode is 'COMMAND'
+    if Application.mode is 'COMMAND'
       # TODO: get command mode working with resize and redraw()
       if code > 31 and code < 127 # valid command characters
-        Window.command_line += ch
-        Logger.out "type cmd len #{Window.command_line.length}"
+        Application.command_line += ch
+        Logger.out "type cmd len #{Application.command_line.length}"
         Terminal.echo(ch).flush()
       else if key.name is 'escape'
-        Window.command_line = ''
-        Window.command_history_position = 0
-        Window.set_mode 'COMBO'
+        Application.command_line = ''
+        Application.command_history_position = 0
+        Application.set_mode 'COMBO'
       else if key.name is 'backspace'
         Logger.out "Terminal.cursor.x #{Terminal.cursor.x}"
-        if Terminal.cursor.x > 1 and Window.command_line.length > 0
+        if Terminal.cursor.x > 1 and Application.command_line.length > 0
           x = Terminal.cursor.x - 1
-          cmd = Window.command_line.substr 0, x-2
-          cmd += Window.command_line.substr x-1, Window.command_line.length-x+1
-          Window.command_line = cmd
-          Logger.out "bksp cmd len #{Window.command_line.length}, cmd #{Window.command_line}"
+          cmd = Application.command_line.substr 0, x-2
+          cmd += Application.command_line.substr x-1, Application.command_line.length-x+1
+          Application.command_line = cmd
+          Logger.out "bksp cmd len #{Application.command_line.length}, cmd #{Application.command_line}"
           Window.status_bar.set_text ':'+cmd
           Terminal.go(x, Terminal.screen.h).flush()
       else if key.name is 'delete'
@@ -29,12 +37,12 @@ module.exports = class ApplicationController
         if Terminal.cursor.x > 2
           Terminal.move(-1).flush()
       else if key.name is 'right'
-        if Terminal.cursor.x < Window.command_line.length + 2
+        if Terminal.cursor.x < Application.command_line.length + 2
           Terminal.move(1).flush()
       else if key.name is 'home'
         Terminal.go(2, Terminal.screen.h).flush()
       else if key.name is 'end'
-        Terminal.go(Window.command_line.length+2, Terminal.screen.h).flush()
+        Terminal.go(Application.command_line.length+2, Terminal.screen.h).flush()
       else if key.name is 'up'
         1 # retrieve history up matching beginning of current command
       else if key.name is 'down'
@@ -42,17 +50,17 @@ module.exports = class ApplicationController
         # or matching highlighted history command plus any characters typed
         # or else whatever i was typing before this started (skip if tricky)
       else if key.name is 'return'
-        Window.execute_cmd Window.command_line
-        Window.command_line = ''
-        Window.set_mode 'COMBO'
+        Application.execute_cmd Application.command_line
+        Application.command_line = ''
+        Application.set_mode 'COMBO'
 
-    if Window.mode is 'COMBO'
+    if Application.mode is 'COMBO'
       switch ch
         when 'i'
-          Window.set_mode 'NORMAL'
+          Application.set_mode 'NORMAL'
           return
         when ':'
-          Window.mode = 'COMMAND'
+          Application.mode = 'COMMAND'
           Window.status_bar.set_text ':', false
           return
 
@@ -61,10 +69,10 @@ module.exports = class ApplicationController
       die '' # for convenience while debugging
       return
 
-    if (Window.mode is 'NORMAL' or Window.mode is 'COMBO') and key
+    if (Application.mode is 'NORMAL' or Application.mode is 'COMBO') and key
       switch key.name
         when 'escape'
-          Window.set_mode 'COMBO'
+          Application.set_mode 'COMBO'
         when 'left'
           Window.current_cursor().move -1
         when 'right'
@@ -79,14 +87,21 @@ module.exports = class ApplicationController
     Logger.out "caught mousepress: "+ JSON.stringify e
     return
 
+  @set_mode: (mode) ->
+    Application.mode = mode
+    Window.status_bar.set_text Terminal
+      .xfg(NviConfig.window_mode_fg).fg('bold').echo("-- #{Application.mode} MODE --").fg('unbold')
+      .xfg(NviConfig.window_status_bar_fg).get_clean()
+    return
+
   @execute_cmd: (cmd) ->
-    Logger.out "would execute command: #{Window.command_line}"
-    Window.command_history.push Window.command_line
+    Logger.out "would execute command: #{Application.command_line}"
+    Application.command_history.push Application.command_line
     args = cmd.split ' '
     switch args[0]
       when 'x', 'wq'
         die ''
       when 'q', 'quit'
         die ''
-      when 'vsplit', 'split'
-        return Window.active_tab.split args[0][0], args[1]
+      when 'vsplit', 'hsplit', 'split'
+        return Window.active_tab.split args[0], args[1]

@@ -150,7 +150,6 @@ module.exports = Terminal = (function() {
     }
     Terminal.cursor.y = y;
     Terminal.push_raw(Terminal.ansi_esc.cursor_pos(Terminal.cursor.x, Terminal.cursor.y));
-    Logger.out("Terminal.cursor = x: " + Terminal.cursor.x + ", y: " + Terminal.cursor.y);
     return this;
   };
 

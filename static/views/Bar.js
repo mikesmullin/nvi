@@ -16,7 +16,6 @@ module.exports = Bar = (function() {
   }
 
   Bar.prototype.resize = function(o) {
-    Logger.out("Bar.resize(" + (JSON.stringify(o)) + ") called.");
     if (o.x) {
       this.x = o.x;
     }
@@ -49,14 +48,6 @@ module.exports = Bar = (function() {
     if (return_cursor == null) {
       return_cursor = true;
     }
-    Logger.out("Bar.set_text() called. " + JSON.stringify({
-      x: this.x,
-      y: this.y,
-      w: this.w,
-      h: this.h,
-      bg: this.bg,
-      fg: this.fg
-    }));
     Terminal.clear_space({
       x: this.x,
       y: this.y,

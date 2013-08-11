@@ -72,17 +72,22 @@ User = require('./models/User');
 
 global.Window = require('./views/Window');
 
+global.Application = require('./controllers/application');
+
 Logger.out('init');
 
+Application.init({
+  current_user: new User(NviConfig.user)
+});
+
 Window.init({
-  current_user: new User(NviConfig.user),
   file: filename
 });
 
 process.stdout.on('resize', Window.resize);
 
-process.stdin.on('keypress', Window.keypress);
+process.stdin.on('keypress', Application.keypress);
 
-process.stdin.on('mousepress', Window.mousepress);
+process.stdin.on('mousepress', Application.mousepress);
 
 process.stdin.resume();

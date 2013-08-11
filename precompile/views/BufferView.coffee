@@ -34,7 +34,7 @@ module.exports = class BufferView
     # but only one is possessed at a given time
     # cursor 0 is always the current_user's cursor
     # only cursor 0 can become possessed by the current_user
-    @cursors = [new BufferViewCursor user: Window.current_user, view: @, x: @x, y: @y, possessed: true]
+    @cursors = [new BufferViewCursor user: Application.current_user, view: @, x: @x, y: @y, possessed: true]
     return
   destroy: ->
     @cell.destroy()
