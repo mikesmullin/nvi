@@ -27,7 +27,7 @@ trap ctrl_backslash SIGQUIT
 #while true; do $*; done
 while true; do
   reset;
-  npm test && \
-  slnode debug -s static/main.js;
+  npm run-script prestart && \
+  slnode debug static/main.js;
   cat # pause to read output
 done

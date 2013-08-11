@@ -1,4 +1,5 @@
 node_modules/
+static/
 nvi.log
 nvi-*.log
 sample*.txt

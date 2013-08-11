@@ -15,8 +15,10 @@
     "coffee-script": "~1.6.3"
   },
   "scripts": {
-    "pretest": "coffee --bare -o static/ precompile/",
-    "test": "mocha --reporter spec --bail --ui bdd --colors --compilers coffee:coffee-script test/test.coffee"
+    "postinstall": "coffee --bare -o static/ precompile/",
+    "test": "mocha --reporter spec --bail --ui bdd --colors --compilers coffee:coffee-script test/*.coffee -w -g WIP",
+    "prestart": "coffee --bare -o static/ precompile/",
+    "start": "bin/nvi"
   },
   "repository": "git@github.com:mikesmullin/nvi.git",
   "author": "Mike Smullin <mike@smullindesign.com>",

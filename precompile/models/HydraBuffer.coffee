@@ -1,7 +1,7 @@
 fs = require 'fs'
 path =  require 'path'
 
-# its a HydraBuffer;
+# its a HydraBuffer
 # because it gets read by multiple sometimes overlapping views
 # allowing them to share a single file
 # with the most minimal rewind/seeking/buffering
@@ -14,8 +14,9 @@ path =  require 'path'
 # (e.g. host presses Ctrl+S? or client presses it, and host approves)
 
 module.exports = class HydraBuffer
-# belongs to one or more views
 # one per stream
+# belongs to one or more views
+# has zero or more BufferViewCursors
   @buffers: {} # registry ensures only one instance per stream
   constructor: (o) ->
     if o.file isnt undefined # we're expected to open a file on disk
