@@ -1,8 +1,43 @@
 # Very opinionated Node.JS VI clone
 
-Its an a very ALPHA state right now. Contributions welcome.
+This will become my dream collaborative editor.
+
+**WARNING:** Its in a very ALPHA state right now. Contributions welcome.
 
 ![Screenshot](https://raw.github.com/mikesmullin/nvi/development/docs/screenshot.png)
+
+## Vision:
+
+We're taking the best parts of Vim:
+  * 256-color text-based user interface
+  * works locally via terminal incl. tmux
+  * works remotely via ssh
+  * modes
+  * buffers
+  * block edit
+  * macros
+  * mouse support
+  * plugins:
+    * syntax highlighting
+    * nerdtree
+    * ctags
+    * taglist
+
+and making them better:
+  * collaborative editing
+    * multiple writers w/ colored cursors
+    * follow/professor mode
+  * type inference and code completion (coffeescript will be first)
+  * easily configured and modded via coffeescript and javascript
+  * unforgiving bias toward modern systems
+
+## Achieved Features:
+
+* 256-color terminal text-based user interface
+* tiled window management for buffers
+* modes: COMBO, NORMAL, REPLACE, BLOCK, LINE-BLOCK, COMMAND
+* connect multiple nvi sessions in host-guests configuration
+* local unix and remote tcp socket support for pairing
 
 ## Installation
 ```bash
@@ -15,52 +50,37 @@ nvi # new file
 nvi <file> # existing file
 ```
 
-## Rambling Specification:
-this will become my dream [collaborative] editor.
+## Getting Started
 
-i'm just taking the best parts of vim
- and making them better
-   line numbers
-   buffers
-   macros
-   modes
-   block edit
-   highly configurable via modern programming (javascript or coffeescript)
-   plugins (by default does almost nothing)
-     nerdtree
-     ctags
-     object browser
+Nvi modes are not Vim modes.
+Nvi NORMAL is Vim INSERT.
+Nvi COMBO is Vim NORMAL.
+These mode names are less confusing to new users.
+When you first run Nvi, you begin in Nvi NORMAL mode.
+This is intended to provide new users with a sense of familiarity as it is conventional to nano or Notepad on first impression.
+This is aided by default hotkey behaviors like:
+ * Esc: enter Nvi COMBO mode
+ * Ctrl+S: Save, enter Nvi COMBO mode
+ * Ctrl+Q: Prompt to save if any changes, then quit
+ * Ctrl+X: Cut selection to clipboard
+ * Ctrl+C: Copy selection to clipboard
+ * Ctrl+V: Paste clipboard
 
+## Beginning a Collaborative Editing Session
 
-using multi-colored cursors
-  and the shortest possible network language to communicate changes
+* Open `nvi` twice
+* In the first Nvi, press `<Esc>` to enter COMBO mode, type: `:listen`, and hit `<Enter>`
+* In the second Nvi, press `<Esc>` to enter COMBO mode, type: `:connect`, and hit `<Enter>`
 
-e.g. the collab feature should have:
-  follow mode
-  multiple cursors
-  multiple colored cursors
-  colored fg/background text matching users who edited
-  support for syntax highlighting
+## Rambling Specification
 
-  only transmit files when they are needing to be opened, as they need to be opened,
-    and only the parts of the file that need to be rendered
+only transmit files when they are needing to be opened, as they need to be opened,
+  and only the parts of the file that need to be rendered
 
-  detect changes to files on disk using mtime
-    and auto-sync those to the group
+detect changes to files on disk using mtime
+  and auto-sync those to the group
 
-  detect an out-of-sync state (what is hash of chars on line RAND characters RANDx - RANDY?) if its not the same then resend the document
-
-later i would add support for:
-
-  coffeescript
-    syntax highlighting
-    type inference
-    code completion
-
-there's only one buffer per file
-a buffer does not have to be a file
-multiple views can share a buffer
-a view can have one or more cursor
+detect an out-of-sync state (what is hash of chars on line RAND characters RANDx - RANDY?) if its not the same then resend the document
 
 buffer is closely tied to the view
   it only fetches enough bytes to fill the view
@@ -74,22 +94,7 @@ buffer is aware of how many views are using it
   and and when it fetches an area of the buffer that is overlapping in the view render
   it updates both views not one then again for the other
 
-so views have: w, x, buf_offset_y, cursors: pos: x:,  y:
-
-cursors have: user_id, color, pos: { x:, y: },
-
-users have name and color
-
-cursors are relative to their views
-
-
-
-
-
-
-for my collaborative mode, we'll connect at first over a regular tcp socket
-there will be one instance in a 'host' mode
-and zero or more instances in a 'guest' mode
+for my collaborative mode,
 the guests will not receive mirror copies of the entire directory
 the host will share the directory skeleton for the current directory
   and recursively but only upon a watch request
@@ -108,7 +113,6 @@ also, diffs are only broadcasted within the context of the all clients collectiv
 if a file changes on the host system
   then we only broadcast that change if it is within the overlapped views of clients
 
-
 this is very similar to how ssh vim tmux session would go, except we now have multiple cursors
 
 cursor position updates will be notified (client->host) and rebroadcasted (others) with a throttle
@@ -125,7 +129,6 @@ and what about binary files?
       modify the file locally
       mtime inotify triggers guests to receive the bin file as well
       any new files created (atime) get auto-shared to the host
-
       client can be asked to resolve merge conflicts
 
 its basically like a rapid git session
@@ -138,12 +141,11 @@ except i don't like all the assumptions made above re. bin files
     and we really only care about the final result
     and most likely the group will want to talk it over and approve it before accepting it anyway
 
-
 it would be cool if it had git support so that team commits could be saved with attribution for the authors involved when the commit was made
   and so the commits only happened on the host side
   same with pushes
 
-NO that silly git diff shit is not applicable; it doesn't resolve changes on the same line
+NO that silly git diff is not applicable; it doesn't resolve changes on the same line
   so i need my own
   i think instead i will just translate the cursor/block edit operations to binary opcodes
 
@@ -323,19 +325,6 @@ and that transmitting a file-at-a-time from host to client is fast enough
 add funny -- COMBO X10! --
 counter to the statusbar as each combo is executed within a 1 sec delay
 
-
-there's a view statusbar
-and a window statusbar
-the window statusbar is always visible
-really they both are
-i guess the view one gets added by a plugin for gvim
-but mine will be there in core
-
-
-now this is getting fun!
-i'm going to take some liberties with this
-to make vim easier for newbs
-
 no matter where you are in vim, you should always see the current mode
 in a reliable place, because modes are so fundamental to vi operation
 my modes will be color coded like the vi powerline theme
@@ -349,13 +338,9 @@ so that when they start out its most like what they might
 be famliar with: notepad, and they hvae to hit ESC to get to
 COMBO mode (what i call the vi NORMAL mode)
 
-
-
-
 make it so all @w and @h are the outer dims
 and any decorators like tabs, statusbars, etc. must fit inside that
 and relative to their parent dims who controls them
-
 
 instead of doing a layered TUI that redraws layers ontop of layers
 if i need to get more efficient
@@ -365,34 +350,10 @@ and subsequent cells point back to the id of the first cell of which they also b
 then i just loop through the cells to determine which functions need to execute to redraw
 the screen
 
-
 its important to differentiate between the Terminal.cursor (there is only one; used to draw the screen)
 and the ViewCursor (there can be one or more per view; used by users to traverse a view)
 additionally between a ViewCursor that is the currently possessed (uses Terminal.cursor)
 and a ViewCursor that is not possessed (unfocused, or someone else's cursor; drawn manually)
-
-todo next:
-
-figure out the subtleties of vim buffer resizing
-make it draw a dividing line
-make the dividing lines draggable to hresize and vresize
-
-
-make it render more than one view in split screen
-make view statusbar toggle focus with click
-also cursor focus toggle with click
-and render both cursors in same view
-hmm maybe also make it so view status bar only appears if there is more than one?
-
-tcp or file socket host and guest configurations
-rendering multiple host and guest cursor movements
-
-
-arrow keys cursor movement constrained by view text depending on mode
-lclick to place cursor
-lclick+drag to highlight
-double-lclick to highlight word
-triple-lclick to highlight line
 
 fix the command line disappearing on resize
 next time i implement bksp, del, etc. see if i can modularize the custom readline functionality i added to the command bar
@@ -400,8 +361,6 @@ next time i implement bksp, del, etc. see if i can modularize the custom readlin
 de-duplicate information presented in vim statusbars;
   treat Window.status_bar as global log notifications like "read 144B, 23C, 104L in 0.23sec"
   treat View.status_bar as stateful mode and cursor position information
-
-technically my views/View should probably be called views/Buffer and views/BufferCursor
 
 i'll improve on vim window management
 when the terminal resizes, instead of remembering exact widths and collapsing containers on the right
@@ -411,4 +370,20 @@ when the terminal resizes
 display errors such as 'Not enough room' in the Window.status_bar
   support displaying errors in an obnoxious white-on-red color scheme
 
+## TODO most immediately:
 
+* rendering multiple host and guest cursor movements
+* arrow keys cursor movement constrained by view text depending on mode
+
+* make it draw a dividing line
+* make the dividing lines draggable to hresize and vresize
+
+* make view statusbar toggle focus with click
+* also cursor focus toggle with click
+* and render both cursors in same view
+* hmm maybe also make it so view status bar only appears if there is more than one?
+
+* lclick to place cursor
+* lclick+drag to highlight
+* double-lclick to highlight word
+* triple-lclick to highlight line

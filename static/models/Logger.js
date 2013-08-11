@@ -8,8 +8,21 @@ path = require('path');
 module.exports = Logger = (function() {
   function Logger() {}
 
-  Logger.out = function(s) {
-    fs.appendFileSync(path.join(__dirname, '..', '..', 'nvi.log'), s + "\n");
+  Logger.filename = 'nvi.log';
+
+  Logger.out = function() {
+    var o, out, s;
+    o = {};
+    switch (arguments.length) {
+      case 2:
+        o = arguments[0], s = arguments[1];
+        break;
+      case 1:
+        s = arguments[0];
+    }
+    o.type || (o.type = 'info');
+    out = ("" + (Date.create().format('{MM}/{dd}/{yy} {HH}:{mm}:{ss}.{fff}')) + " ") + ("" + (o.remote ? "" + o.remote + " " : "")) + ("[" + o.type + "] ") + ("" + s) + ("" + (o.type === 'out' ? "" : "\n"));
+    fs.appendFileSync(path.join(__dirname, '..', '..', Logger.filename), out);
   };
 
   return Logger;

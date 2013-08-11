@@ -99,7 +99,7 @@ module.exports = Cell = (function() {
       if (cell.h < 1) {
         die("Cell.h may not be less than 1!");
       }
-      if (affected_content = this.view || this.first_child) {
+      if (affected_content = cell.view || cell.first_child) {
         affected_content.resize({
           x: cell.x,
           y: cell.y,

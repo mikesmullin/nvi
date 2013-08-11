@@ -35,5 +35,6 @@
     "name"  : "Mike Smullin",
     "email" : "mike@smullindesign.com",
     "color" : 13
-  }
+  },
+  "socket": "/tmp/nvi"
 }

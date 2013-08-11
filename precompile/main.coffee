@@ -7,12 +7,8 @@ global.Terminal = require './views/Terminal'
 global.delay = (s,f) -> setTimeout f, s
 global.interval = (s,f) -> setInterval f, s
 global.repeat = (n,s) -> o = ''; o += s for i in [0...n]; o
-#global._throttles = {}
-#global.throttle = (ms, k, f) -> ->
-#  return if _throttles[k]
-#  _throttles[k] = true
-#  delay ms, -> delete _throttles[k]
-#  f.apply null, arguments
+global.rand = (m,x) -> Math.floor(Math.random() * (x-m)) + m
+sugar = require 'sugar'
 
 cleaned_up = false
 cleanup = ->
@@ -39,18 +35,7 @@ keypress.enableMouse process.stdout # override mouse support
 process.on 'exit', -> keypress.disableMouse process.stdout # return to normal for terminal
 process.stdin.setEncoding 'utf8' # modern times
 
-[nil, nil, filename] = process.argv
-User = require './models/User'
-global.Window = require './views/Window'
 global.Application = require './controllers/application'
-
-Logger.out 'init'
+[nil, nil, args...] = process.argv
 Application.init
-  current_user: new User NviConfig.user
-Window.init
-  file: filename
-process.stdout.on 'resize', Window.resize
-process.stdin.on 'keypress', Application.keypress
-process.stdin.on 'mousepress', Application.mousepress
-
-process.stdin.resume() # wait for stdin
+  args: args

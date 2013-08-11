@@ -82,7 +82,7 @@ module.exports = class Cell
       die "Cell.w may not be less than 1!" if cell.w < 1
       die "Cell.h may not be less than 1!" if cell.h < 1
       # invoke resize on affected children and/or views
-      if affected_content = @view or @first_child
+      if affected_content = cell.view or cell.first_child
         affected_content.resize x: cell.x, y: cell.y, w: cell.w, h: cell.h
       # increment and repeat
       i++; pc = cell; return

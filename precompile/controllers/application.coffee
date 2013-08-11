@@ -1,11 +1,21 @@
+User = require '../models/User'
+global.Window = require '../views/Window'
+
 module.exports = class Application
   @init: (o) ->
-    Application.current_user = o.current_user
+    Logger.out 'init'
+    Application.current_user = new User NviConfig.user
     # valid options: NORMAL, COMBO, REPLACE, BLOCK, LINE-BLOCK, COMMAND
     Application.mode = 'NORMAL' # always begin in this mode
     Application.command_line = ''
     Application.command_history = []
     Application.command_history_position = 0
+    Window.init
+      file: o.args[0]
+    process.stdout.on 'resize', Window.resize
+    process.stdin.on 'keypress', Application.keypress
+    process.stdin.on 'mousepress', Application.mousepress
+    process.stdin.resume() # wait for stdin
 
   @keypress: (ch, key) ->
     Logger.out "caught keypress: "+ JSON.stringify arguments
@@ -105,3 +115,9 @@ module.exports = class Application
         die ''
       when 'vsplit', 'hsplit', 'split'
         return Window.active_tab.split args[0], args[1]
+      when 'listen'
+        ServerController = require './server'
+        ServerController.init NviConfig.socket
+      when 'connect'
+        ClientController = require './client'
+        ClientController.init NviConfig.socket
