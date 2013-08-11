@@ -22,6 +22,5 @@
   },
   "repository": "git@github.com:mikesmullin/nvi.git",
   "author": "Mike Smullin <mike@smullindesign.com>",
-  "license": "GPLv3",
-  "gitHead": "34f9faa540a745a2c95026b7e4c3a5a0e93c4b95"
+  "license": "GPLv3"
 }
