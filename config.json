@@ -36,5 +36,7 @@
     "email" : "mike@smullindesign.com",
     "color" : 13
   },
-  "socket": "/tmp/nvi"
+  "socket": "/tmp/nvi",
+  "log_file": "nvi.log",
+  "headless_display_file": false
 }

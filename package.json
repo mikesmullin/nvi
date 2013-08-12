@@ -16,7 +16,7 @@
   },
   "scripts": {
     "postinstall": "coffee --bare -o static/ precompile/",
-    "test": "mocha --reporter spec --bail --ui bdd --colors --compilers coffee:coffee-script test/*.coffee -w -g WIP",
+    "test": "mocha --reporter spec --bail --ui bdd --colors --compilers coffee:coffee-script test/*.coffee --globals App -w -g WIP",
     "prestart": "coffee --bare -o static/ precompile/",
     "start": "bin/nvi"
   },

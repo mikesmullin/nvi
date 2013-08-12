@@ -54,13 +54,13 @@ module.exports = class Cell
     # TODO: make space for divider bars
     if o?.chain
       @chain.x = o.chain.x if o.chain.x
-      die "Cell.chain.x may not be less than 1!" if @chain.x < 1
+      App.die "Cell.chain.x may not be less than 1!" if @chain.x < 1
       @chain.y = o.chain.y if o.chain.y
-      die "Cell.chain.y may not be less than 1!" if @chain.y < 1
+      App.die "Cell.chain.y may not be less than 1!" if @chain.y < 1
       @chain.w = o.chain.w if o.chain.w
-      die "Cell.chain.w may not be less than 1!" if @chain.w < 1
+      App.die "Cell.chain.w may not be less than 1!" if @chain.w < 1
       @chain.h = o.chain.h if o.chain.h
-      die "Cell.chain.h may not be less than 1!" if @chain.h < 1
+      App.die "Cell.chain.h may not be less than 1!" if @chain.h < 1
     # recalculate every cell size in the chain
     # because no cell size stands on its own;
     #   all cell sizes are relative to the chain
@@ -77,10 +77,10 @@ module.exports = class Cell
           cell.y = pc.y + (i * pc.h)
           cell.w = cell.chain.w # same
           cell.h = Math.floor cell.p * cell.chain.h # relative percentage of the total chain
-      die "Cell.x may not be less than 1!" if cell.x < 1
-      die "Cell.y may not be less than 1!" if cell.y < 1
-      die "Cell.w may not be less than 1!" if cell.w < 1
-      die "Cell.h may not be less than 1!" if cell.h < 1
+      App.die "Cell.x may not be less than 1!" if cell.x < 1
+      App.die "Cell.y may not be less than 1!" if cell.y < 1
+      App.die "Cell.w may not be less than 1!" if cell.w < 1
+      App.die "Cell.h may not be less than 1!" if cell.h < 1
       # invoke resize on affected children and/or views
       if affected_content = cell.view or cell.first_child
         affected_content.resize x: cell.x, y: cell.y, w: cell.w, h: cell.h
@@ -132,8 +132,8 @@ module.exports = class Cell
   # not the same as hsplit or divide; inserts an additional cell child
   # with its own direction and completely new cell chain
   impregnate: (dir, view) ->
-    die "must have more than one cell in the chain to impregnate" unless @prev or @next
-    die "must not already be impregnated to impregnate" if @first_child
+    App.die "must have more than one cell in the chain to impregnate" unless @prev or @next
+    App.die "must not already be impregnated to impregnate" if @first_child
     # temporarily detach the view from this cell
     detached_view = @view
     @view = null

@@ -13,13 +13,13 @@ module.exports = class BufferViewCursor
     return
   resize: (o) ->
     @x = o.x
-    die "BufferViewCursor.x may not be less than 1!" if @x < 1
+    App.die "BufferViewCursor.x may not be less than 1!" if @x < 1
     @y = o.x
-    die "BufferViewCursor.y may not be less than 1!" if @y < 1
+    App.die "BufferViewCursor.y may not be less than 1!" if @y < 1
     @w = o.w or 1
-    die "BufferViewCursor.w may not be less than 1!" if @w < 1
+    App.die "BufferViewCursor.w may not be less than 1!" if @w < 1
     @h = o.h or 1
-    die "BufferViewCursor.h may not be less than 1!" if @h < 1
+    App.die "BufferViewCursor.h may not be less than 1!" if @h < 1
     @draw()
     return
   draw: ->
@@ -31,7 +31,7 @@ module.exports = class BufferViewCursor
 
   # positioning of terminal cursor relative to view
   go: (@x, @y) -> # relative to view
-    Terminal.go(@view.x + @view.gutter.length + @x-1, @view.y + @y-1).flush()
+    App.Terminal.go(@view.x + @view.gutter.length + @x-1, @view.y + @y-1).flush()
     return
   move: (x, y=0) -> # relative to current position
     # TODO: limit cursor movement to within the typeable area, not the entire view

@@ -1,9 +1,11 @@
 fs = require 'fs'
 path = require 'path'
+require 'sugar' # for Date formatting
 
 module.exports = class Logger
-  @filename: 'nvi.log'
-  @out: ->
+  constructor: (o) ->
+    @filename = o.filename
+  out: ->
     o = {}
     switch arguments.length
       when 2 then [o, s] = arguments
@@ -16,5 +18,5 @@ module.exports = class Logger
       "#{s}"+
       "#{if o.type is 'out' then "" else "\n"}"
 
-    fs.appendFileSync path.join(__dirname, '..', '..', Logger.filename), out
+    fs.appendFileSync path.join(__dirname, '..', '..', @filename), out
     return

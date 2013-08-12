@@ -1,6 +1,7 @@
 Bar = require './Bar'
 HydraBuffer = require '../models/HydraBuffer'
 BufferViewCursor = require './BufferViewCursor'
+{ repeat } = require '../util'
 
 module.exports = class BufferView
 # belongs to a Tab.Cell
@@ -21,12 +22,12 @@ module.exports = class BufferView
     @lines = [''] unless @lines.length >= 1 # may never have less than one line
     @gutter = repeat (Math.max 4, @lines.length.toString().length + 2), ' '
     @resize x: o.x, y: o.y, w: o.w, h: o.h
-    @status_bar = new Bar x: @x, y: @y + @ih, w: @w, h: 1, bg: NviConfig.view_status_bar_active_bg, fg: NviConfig.view_status_bar_active_fg, text: Terminal
-      .xbg(NviConfig.view_status_bar_active_l1_bg).xfg(NviConfig.view_status_bar_active_l1_fg)
+    @status_bar = new Bar x: @x, y: @y + @ih, w: @w, h: 1, bg: App.config.view_status_bar_active_bg, fg: App.config.view_status_bar_active_fg, text: App.Terminal
+      .xbg(App.config.view_status_bar_active_l1_bg).xfg(App.config.view_status_bar_active_l1_fg)
       .echo(@buffer.path).fg('bold')
-      .xfg(NviConfig.view_status_bar_active_l1_fg_bold).echo(@buffer.base+' ')
+      .xfg(App.config.view_status_bar_active_l1_fg_bold).echo(@buffer.base+' ')
       .fg('unbold')
-      .xbg(NviConfig.view_status_bar_active_bg).xfg(NviConfig.view_status_bar_active_fg)
+      .xbg(App.config.view_status_bar_active_bg).xfg(App.config.view_status_bar_active_fg)
       .get_clean()
     #Window.status_bar.set_text "\"#{@buffer.base}\", #{@lines.length}L, #{@buffer.data.length}C"
 
@@ -34,20 +35,20 @@ module.exports = class BufferView
     # but only one is possessed at a given time
     # cursor 0 is always the current_user's cursor
     # only cursor 0 can become possessed by the current_user
-    @cursors = [new BufferViewCursor user: Application.current_user, view: @, x: @x, y: @y, possessed: true]
+    @cursors = [new BufferViewCursor user: App.current_user, view: @, x: @x, y: @y, possessed: true]
     return
   destroy: ->
     @cell.destroy()
     return
   resize: (o) ->
     @x = o.x if o.x
-    die "BufferView.x may not be less than 1!" if @x < 1
+    App.die "BufferView.x may not be less than 1!" if @x < 1
     @y = o.y if o.y
-    die "BufferView.y may not be less than 1!" if @y < 1
+    App.die "BufferView.y may not be less than 1!" if @y < 1
     @w = o.w
-    die "BufferView.w may not be less than 1!" if @w < 1
+    App.die "BufferView.w may not be less than 1!" if @w < 1
     # outer height
-    @h = o.h; die "BufferView.h may not be less than 2!" if @h < 2
+    @h = o.h; App.die "BufferView.h may not be less than 2!" if @h < 2
     # inner height (after decorators like status bar)
     @iw = o.w
     @ih = o.h - 1 # make room for status bar
@@ -65,14 +66,14 @@ module.exports = class BufferView
       if line.length > @iw then line = line.substr(0, @iw-1)+'>'
       # draw line gutter
       # TODO: we shouldn't have to keep setting go(). we clear to eol so it should line up perfectly on next line
-      #       just set go once outside of for() and then fix the Terminal.echo() math
-      Terminal.xbg(NviConfig.view_gutter_bg).xfg(NviConfig.view_gutter_fg).go(@x,@y+ln).echo((@gutter+(ln+1)).substr(-1*(@gutter.length-1))+' ')
+      #       just set go once outside of for() and then fix the App.Terminal.echo() math
+      App.Terminal.xbg(App.config.view_gutter_bg).xfg(App.config.view_gutter_fg).go(@x,@y+ln).echo((@gutter+(ln+1)).substr(-1*(@gutter.length-1))+' ')
       # echo line, erasing any remaining line space to end of visible width
-      Terminal.xbg(NviConfig.view_text_bg).xfg(NviConfig.view_text_fg).echo(line).clear_n(@iw - @gutter.length - line.length).flush()
+      App.Terminal.xbg(App.config.view_text_bg).xfg(App.config.view_text_fg).echo(line).clear_n(@iw - @gutter.length - line.length).flush()
     # draw tilde placeholder lines, erasing any remaining line space to end of visible height
     if visible_line_h < @ih
       for y in [visible_line_h...@ih]
-        Terminal.xbg(NviConfig.view_gutter_bg).xfg(NviConfig.view_gutter_fg).go(@x,@y+y).fg('bold').echo('~').fg('unbold').clear_n(@iw-1).flush()
+        App.Terminal.xbg(App.config.view_gutter_bg).xfg(App.config.view_gutter_fg).go(@x,@y+y).fg('bold').echo('~').fg('unbold').clear_n(@iw-1).flush()
     if @cursors
       cursor.draw() for cursor, i in @cursors when i isnt 0
     return

@@ -1,6 +1,6 @@
 assert = require('chai').assert
 global.Logger = out: ->
-global.Terminal = require '../precompile/views/Terminal'
+global.Terminal = new require '../precompile/views/Terminal'
 
 describe 'the nvi editor', ->
   it 'can render xterm-256 colors', ->

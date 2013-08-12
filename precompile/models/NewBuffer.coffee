@@ -1,3 +1,9 @@
+# TODO: include real classes here
+# TODO: write granular test cases based on those
+# TODO: get the bufferview to output to console.log as if it were updating the screen
+#       except more like printing out a screenshot; that'd be pretty cool
+# TODO: get the hydrabuffer rendering a rect of text; and only storing that in memory
+# TODO: get symbols highlighting in green
 module.exports =
   HydraBuffer: class HydraBuffer
     constructor: (@o, @text)->

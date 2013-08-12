@@ -6,7 +6,6 @@ module.exports = class Socket
     @socket = null
     @connected = false
     @buffer = ''
-    #NviConfig.socket
     @state = {}
     @expectations = Once: [], Anytime: []
     @on 'data', @receive
@@ -47,7 +46,7 @@ module.exports = class Socket
     # TODO: make this able to listen on the same port across threads
     server = net.createServer allowHalfOpen: false, (@socket) =>
       @connected = true
-      Logger.out remote: "#{@socket.remoteAddress}:#{@socket.remotePort}", 'client connected'
+      App.Logger.out remote: "#{@socket.remoteAddress}:#{@socket.remotePort}", 'client connected'
       @socket.on 'data', (d) =>
         @socket_receive.apply @, arguments
       cb @socket if typeof cb is 'function'
@@ -55,22 +54,22 @@ module.exports = class Socket
     #server.setNoDelay false # disable Nagle algorithm; forcing an aggressive socket performance improvement
     server.on 'end', =>
       @connected = false
-      Logger.out type: 'fail', 'remote host sent FIN'
+      App.Logger.out type: 'fail', 'remote host sent FIN'
     server.on 'close', =>
       @connected = false
-      Logger.out type: 'fail', 'socket closed'
+      App.Logger.out type: 'fail', 'socket closed'
       @emit 'close'
     server.on 'error', (err) =>
-      Logger.out type: 'fail', "Socket error: "+ JSON.stringify err
+      App.Logger.out type: 'fail', "Socket error: "+ JSON.stringify err
     server.on 'timeout', =>
     server.listen port, =>
-      Logger.out "listening on #{port}"
+      App.Logger.out "listening on #{port}"
       @emit 'listening'
 
   socket_open: (port, cb) ->
     @host = '' #host if host
     @port = port if port
-    Logger.out remote: "#{@host}:#{@port}", 'opening socket'
+    App.Logger.out remote: "#{@host}:#{@port}", 'opening socket'
     @socket = new net.Socket allowHalfOpen: false
     @socket.setTimeout 10*1000 # wait 10sec before retrying connection
     @socket.setNoDelay false # disable Nagle algorithm; forcing an aggressive socket performance improvement
@@ -79,19 +78,19 @@ module.exports = class Socket
       @socket_receive.apply @, arguments
     @socket.on 'end', =>
       @connected = false
-      Logger.out type: 'fail', 'remote host sent FIN'
+      App.Logger.out type: 'fail', 'remote host sent FIN'
     @socket.on 'close', =>
       @connected = false
-      Logger.out type: 'fail', 'socket closed'
+      App.Logger.out type: 'fail', 'socket closed'
       @emit 'close'
     @socket.on 'error', (err) =>
-      Logger.out type: 'fail', "Socket error: "+ JSON.stringify err
+      App.Logger.out type: 'fail', "Socket error: "+ JSON.stringify err
     @socket.on 'timeout', =>
       # this seems to get fired randomly; perhaps when packet send is delayed; unreliable
     @emit 'connecting'
     @socket.connect @port, =>
       @connected = false
-      Logger.out 'socket open'
+      App.Logger.out 'socket open'
       cb @socket if typeof cb is 'function'
       @emit 'connection'
 
@@ -100,14 +99,14 @@ module.exports = class Socket
     # TODO: make this hangup on the current client
     # but not drop other existing clients
     # and keep listening for new clients
-    Logger.out type: 'fail', "[ERR] #{err}" if (err)
-    Logger.out 'sent FIN to remote host'
+    App.Logger.out type: 'fail', "[ERR] #{err}" if (err)
+    App.Logger.out 'sent FIN to remote host'
     @socket.end()
-    Logger.out 'destroying socket to ensure no more i/o happens'
+    App.Logger.out 'destroying socket to ensure no more i/o happens'
     @socket.destroy()
 
   socket_send: (s, cb) ->
-    Logger.out type: 'send', JSON.stringify s, null, 2
+    App.Logger.out type: 'send', JSON.stringify s, null, 2
     @socket.write s, 'utf8', =>
       cb()
 
@@ -115,7 +114,7 @@ module.exports = class Socket
     # remote can transmit messages split across several packets,
     # as well as more than one message per packet
     packet = buf.toString()
-    Logger.out type: 'recv', JSON.stringify packet, null, 2
+    App.Logger.out type: 'recv', JSON.stringify packet, null, 2
     @buffer += packet
     while (pos = @buffer.indexOf("\u0000")) isnt -1 # we have a complete message
       recv = @buffer.substr 0, pos
@@ -131,11 +130,11 @@ module.exports = class Socket
 
   # convenient helpers
   send: (description, data_callback, cb) ->
-    Logger.out "send: #{description}"
+    App.Logger.out "send: #{description}"
     @socket_send data_callback.apply(state: @state), cb
 
   hangup: (reason, cb) ->
-    Logger.out type: 'fail', "Server hungup on client. #{reason}"
+    App.Logger.out type: 'fail', "Server hungup on client. #{reason}"
     @on 'close', cb
     @close()
 
@@ -158,13 +157,13 @@ module.exports = class Socket
     for nil, etype of ['Once', 'Anytime']
       for expectation, i in @expectations[etype]
         if expectation.test_callback.apply { state: @state, type: type, cmd: cmd, data: data, recv: recv }
-          Logger.out "received #{type}: #{expectation.description}"
-          Logger.out type: 'data', JSON.stringify { type: type, cmd: cmd, data: data }
+          App.Logger.out "received #{type}: #{expectation.description}"
+          App.Logger.out type: 'data', JSON.stringify { type: type, cmd: cmd, data: data }
           @_clearExpectation etype, i if etype is 'Once'
           if typeof expectation.callback is 'function'
             expectation.callback.apply { state: @state, data: data, recv: recv }
           return true
-    Logger.out type: 'fail', 'received: unexpected response'
-    Logger.out type: 'fail', JSON.stringify { type: type, cmd: cmd, data: data }
-    Logger.out "expectOnce queue: "+ JSON.stringify @expectations.Once
-    Logger.out "expectAnytime queue: "+ JSON.stringify @expectations.Anytime
+    App.Logger.out type: 'fail', 'received: unexpected response'
+    App.Logger.out type: 'fail', JSON.stringify { type: type, cmd: cmd, data: data }
+    App.Logger.out "expectOnce queue: "+ JSON.stringify @expectations.Once
+    App.Logger.out "expectAnytime queue: "+ JSON.stringify @expectations.Anytime
