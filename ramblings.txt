@@ -313,3 +313,19 @@ whitespace chars are symbols as defined above
 whitespace symbols are configurable in json but mine will be default
 
 a symbol is a string of chars which represent exactly one real buffer byte
+
+
+
+so i could implement a unique kind of collab edit
+because i know all users are using the same editor
+i could make it so the initial handshake between
+host-clients is basically the client transferring
+their configs
+then only send keycodes across the wire
+and have the host return the current visible buffer area
+back to the client
+similar to how editing via ssh + vim would normally
+transfer data to the terminal
+the point of transferring configs at the beginning
+means each client can have different hotkeys do different
+things but the host can perform them all
