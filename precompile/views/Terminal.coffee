@@ -78,11 +78,11 @@ module.exports = class Terminal
     Terminal.push_raw Terminal.ansi_esc.cursor_pos Terminal.cursor.x, Terminal.cursor.y
     #Logger.out "Terminal.cursor = x: #{Terminal.cursor.x}, y: #{Terminal.cursor.y}"
     return @
-  @move: (x, y=0) -> # relative to current position
-    dx = Terminal.cursor.x + x
-    dy = Terminal.cursor.y + y
-    if dx >= 0 and dx <= Terminal.screen.w and dy >= 0 and dy <= Terminal.screen.h
-      @go dx, dy
+  @move: (dx, dy=0) -> # relative to current position
+    x = Terminal.cursor.x + dx
+    y = Terminal.cursor.y + dy
+    if 0 <= x <= Terminal.screen.w and 0 <= y <= Terminal.screen.h
+      @go x, y
     return @
   @fg: (color) -> Terminal.push_raw Terminal.ansi_esc.color[color]
   @bg: (color) -> Terminal.push_raw Terminal.ansi_esc.color['bg_'+color]
