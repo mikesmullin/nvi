@@ -89,3 +89,8 @@ This is aided by default hotkey behaviors like:
 * lclick+drag to highlight
 * double-lclick to highlight word
 * triple-lclick to highlight line
+
+
+## Similar projects:
+
+* [Floobits Vim plugin](https://floobits.com/)
