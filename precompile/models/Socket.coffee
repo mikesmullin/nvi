@@ -90,7 +90,7 @@ module.exports = class Socket
       # this seems to get fired randomly; perhaps when packet send is delayed; unreliable
     @emit 'connecting'
     @socket.connect @port, =>
-      @connected = false
+      @connected = true
       Logger.out 'socket open'
       cb @socket if typeof cb is 'function'
       @emit 'connection'
